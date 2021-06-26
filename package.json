@@ -4,8 +4,7 @@
   "description": "This is a command line tool to create SUDT tokens on the Nervos Mainnet and Testnet.",
   "main": "src/index.ts",
   "scripts": {
-    "start": "npx nodemon -w src -e ts,js,json --exec \"npx ts-node --files src/index.ts\"",
-    "start-help": "npx nodemon -w src -e ts,js,json --exec \"npx ts-node --files src/index.ts --help\"",
+    "start": "npx ts-node --files src/index.ts",
     "build": "npx tsc",
     "bump": "npm --no-git-tag-version version patch"
   },
