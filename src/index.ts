@@ -18,14 +18,7 @@ interface PwObject
 	collector: BasicCollector,
 }
 
-enum ChainTypes
-{
-	mainnet,
-	testnet,
-}
-
 type ChainTypeString = 'mainnet'|'testnet';
-
 type NetworkTypeString = 'mainnet'|'testnet'|'devnet';
 
 async function generateDevnetConfig(): Promise<PwConfig>
