@@ -66,8 +66,7 @@ export default class SudtBuilder extends Builder
 		cellDeps.push(PWCore.config.sudtType.cellDep);
 
 		// Generate a transaction and calculate the fee. (The second argument for witness args is needed for more accurate fee calculation.)
-		const RawSecp256k1WitnessArgs = {lock: '0x' + '0'.repeat(130), input_type: '', output_type: ''}; // Builder.WITNESS_ARGS.RawSecp256k1
-		const tx = new Transaction(new RawTransaction(inputCells, outputCells, cellDeps), [RawSecp256k1WitnessArgs]); 
+		const tx = new Transaction(new RawTransaction(inputCells, outputCells, cellDeps), [Builder.WITNESS_ARGS.RawSecp256k1]);
 		this.fee = Builder.calcFee(tx);
 
 		// Throw error if the fee is too low.
