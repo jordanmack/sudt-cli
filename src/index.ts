@@ -215,11 +215,9 @@ async function deployFile(networkType: string, privateKey: string, fee_: BigInt,
 	// Create a deploy transaction.
 	const builder = new DeployBuilder(issuerAddress, destinationAddress, pw.collector, fee, data);
 	const transaction = await builder.build();
-	// console.info(transaction);
 
 	// Submit transaction to the network.
 	const txId = await pw.pwCore.sendTransaction(transaction);
-	// console.info(`Transaction submitted: ${txId}`);
 
 	return new OutPoint(txId, '0x0');
 }
@@ -295,11 +293,9 @@ async function issueSudt(networkType: string, privateKey: string, address_: stri
 	// Create an SUDT transaction.
 	const builder = new SudtBuilder(sudt, issuerAddress, destinationAddress, amount, pw.collector, fee);
 	const transaction = await builder.build();
-	// console.info(transaction);
 
 	// Submit transaction to the network.
 	const txId = await pw.pwCore.sendTransaction(transaction);
-	// console.info(`Transaction submitted: ${txId}`);
 
 	// Display the result information on the console.
 	displayIssueResult(networkType, txId);
@@ -361,10 +357,9 @@ async function main()
 {
 	// Initialize the command line arguments.
 	const args = initArgs();
-	// console.log(args);
 
 	// Wait for indexer to be ready.
-	process.stdout.write('Waiting for indexer to sync.');
+	process.stdout.write('Waiting for CKB Indexer to sync.');
 	await indexerReady(Config.devnet.ckbRpcUrl, Config.devnet.ckbIndexerUrl, (_indexerTip, _rpcTip)=>{process.stdout.write('.');});
 	process.stdout.write(' Ready.\n');
 
