@@ -21,6 +21,15 @@ interface PwObject
 type ChainTypeString = 'mainnet'|'testnet';
 type NetworkTypeString = 'mainnet'|'testnet'|'devnet';
 
+/**
+ * Generates a PwConfig instance which is used when initializing PW-Core for a devnet.
+ * 
+ * This function will search for a devnet config file that contains deployed binaries.
+ * If the devnet config is not found, it will return zeroed out points as placeholders.
+ * This is done to allow PW-Core to be initialized when the full config is not present.
+ * 
+ * @returns A PwConfig instance which is used to initialize a devnet.
+ */
 async function generateDevnetConfig(): Promise<PwConfig>
 {
 	const config: PwConfig =
@@ -86,6 +95,12 @@ async function generateDevnetConfig(): Promise<PwConfig>
 	return config;
 }
 
+/**
+ * Writes the devnet configuration file that contains the out points of deployed assets.
+ * 
+ * @param pwLockOutPoint - The out point for the PW-Lock script code binary.
+ * @param sudtOutPoint - The out point for the SUDT script code binary.
+ */
 async function writeDevnetConfig(pwLockOutPoint: OutPoint, sudtOutPoint: OutPoint): Promise<void>
 {
 	// Generate file hashes.
@@ -114,6 +129,12 @@ async function writeDevnetConfig(pwLockOutPoint: OutPoint, sudtOutPoint: OutPoin
 	process.stdout.write('Write devnet config file. Done.\n');
 }
 
+/**
+ * Initializes PW-Core.
+ * 
+ * @param networkType - A network type string. (mainnet/testnet/devnet)
+ * @param privateKey - A 256-bit private key as a hex string.
+ */
 async function initPwCore(networkType: NetworkTypeString, privateKey: string): Promise<PwObject>
 {
 	const provider = new RawProvider(privateKey);
@@ -130,6 +151,11 @@ async function initPwCore(networkType: NetworkTypeString, privateKey: string): P
 	return {pwCore, provider, collector};
 }
 
+/**
+ * Initializes the arguments for the program using Yargs.
+ * 
+ * @returns An object with the parsed arguments.
+ */
 function initArgs()
 {
 	const args = yargs
@@ -158,6 +184,16 @@ function initArgs()
 	return args;
 }
 
+/**
+ * Displays information about the tokens being issued.
+ * 
+ * @param networkType - A network type string. (mainnet/testnet/devnet)
+ * @param issuerAddress - The address of the SUDT issuer.
+ * @param tokenId - The SUDT token ID. 
+ * @param destinationAddress - The address that is being sent the issued SUDT tokens.
+ * @param amount - The number of SUDT tokens to issue.
+ * @param fee - The fee being paid for the transaction.
+ */
 function displayIssueInfo(networkType: string, issuerAddress: string, tokenId: string, destinationAddress: string, amount: BigInt, fee: BigInt)
 {
 	// Print issue info.
@@ -170,6 +206,12 @@ function displayIssueInfo(networkType: string, issuerAddress: string, tokenId: s
 	process.stdout.write(`Fee:\t\t ${fee}\n`);
 }
 
+/**
+ * Displays information about the result of the token issue transaction.
+ * 
+ * @param networkType - A network type string. (mainnet/testnet/devnet)
+ * @param txId - The resulting transaction ID.
+ */
 function displayIssueResult(networkType: string, txId: string)
 {
 	// Print the resulting TX ID.
@@ -184,6 +226,15 @@ function displayIssueResult(networkType: string, txId: string)
 	}
 }
 
+/**
+ * Display an SUDT balance summary.
+ * 
+ * @param networkType - A network type string. (mainnet/testnet/devnet)
+ * @param issuerAddress - The address of the SUDT issuer.
+ * @param tokenId - The SUDT token ID. 
+ * @param balanceAddress - The address that the balance is being determined for.
+ * @param balance - The balance of the address.
+ */
 function displaySudtSummary(networkType: string, issuerAddress: string, tokenId: string, balanceAddress: string, balance: string)
 {
 	// Print SUDT balance info.
@@ -195,6 +246,17 @@ function displaySudtSummary(networkType: string, issuerAddress: string, tokenId:
 	process.stdout.write(`Balance:\t ${balance}\n`);
 }
 
+/**
+ * Deploys a local file to a cell so it can be used as a dependency.
+ * This is intended for use on devnets only.
+ * The destination address is 0x0, which is a burn.
+ * 
+ * @param networkType - A network type string. (mainnet/testnet/devnet)
+ * @param privateKey - A 256-bit private key as a hex string.
+ * @param fee_ - The fee that should be paid for the transaction.
+ * @param filename - The filename of the local file that will be deployed.
+ * @returns An OutPoint of the cell containing the file data.
+ */
 async function deployFile(networkType: string, privateKey: string, fee_: BigInt, filename: string)
 {
 	// Init PW-Core with the specified network type.
@@ -222,9 +284,17 @@ async function deployFile(networkType: string, privateKey: string, fee_: BigInt,
 	// Submit transaction to the network.
 	const txId = await pw.pwCore.sendTransaction(transaction);
 
+	// The out point index will always be 0x0 as specified in the DeployBuilder.
 	return new OutPoint(txId, '0x0');
 }
 
+/**
+ * Gets the SUDT balance using the private key to generate the issuer address and corresponding SUDT token ID.
+ * 
+ * @param networkType - A network type string. (mainnet/testnet/devnet)
+ * @param privateKey - A 256-bit private key as a hex string.
+ * @param addressString - The address to get the balance of. If blank, the address will be generated from the private key. 
+ */
 async function getSudtBalance(networkType: string, privateKey: string, addressString: string)
 {
 	// Init PW-Core with the specified network type.
@@ -250,6 +320,12 @@ async function getSudtBalance(networkType: string, privateKey: string, addressSt
 	displaySudtSummary(networkType, issuerAddress.toCKBAddress(), sudt.toTypeScript().toHash(), balanceAddress.toCKBAddress(), balance.toString(0));
 }
 
+/**
+ * Deploys the missing cell dependencies on a devnet.
+ * 
+ * @param networkType - A network type string. (mainnet/testnet/devnet)
+ * @param privateKey - A 256-bit private key as a hex string.
+ */
 async function initCellDeps(networkType: string, privateKey: string)
 {
 	// If this is not a devnet, skip.
@@ -293,6 +369,15 @@ async function initCellDeps(networkType: string, privateKey: string)
 	}
 }
 
+/**
+ * Issues an SUDT using the private key to generate the issuer address and corresponding SUDT token ID.
+ * 
+ * @param networkType - A network type string. (mainnet/testnet/devnet)
+ * @param privateKey - A 256-bit private key as a hex string.
+ * @param addressString - The destination address. If blank, the address will be generated from the private key. 
+ * @param amount_ - The number of SUDT tokens to issue.
+ * @param fee_ - The fee to be paid in Shannons.
+ */
 async function issueSudt(networkType: string, privateKey: string, addressString: string, amount_: BigInt, fee_: BigInt)
 {
 	// Init PW-Core with the specified network type.
@@ -329,6 +414,12 @@ async function issueSudt(networkType: string, privateKey: string, addressString:
 	displayIssueResult(networkType, txId);
 }
 
+/**
+ * Converts a network type string into a PW-SDK Chain ID.
+ * 
+ * @param networkType - A network type string. (mainnet/testnet/devnet)
+ * @returns A PW-SDK Chain ID.
+ */
 function networkTypeToChainId(networkType: string)
 {
 	switch(networkType)
@@ -344,6 +435,12 @@ function networkTypeToChainId(networkType: string)
 	}
 }
 
+/**
+ * Perform basic validation on the command line arguments.
+ * 
+ * @param args - An object that contains all arguments that were parsed by Yargs.
+ * @returns True on success, an error is thrown otherwise.
+ */
 function validateArgs(args: any)
 {
 	const command = args._[0];
@@ -381,6 +478,9 @@ function validateArgs(args: any)
 	return true;
 }
 
+/**
+ * Main program entry point.
+ */
 async function main()
 {
 	// Initialize the command line arguments.
