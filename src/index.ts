@@ -147,7 +147,7 @@ function initArgs()
 	{
 		'private-key': {alias: 'k', describe: "Private key to use for issuance.", type: 'string', demand: true},
 		'network-type': {alias: 't', describe: "The network type: mainnet|testnet|devnet", default: 'testnet', choices: ['mainnet', 'testnet', 'devnet']},
-		address: {alias: 'a', describe: "The address to check the SUDT balance of.", type: 'string', demand: true}
+		address: {alias: 'a', describe: "The address to check the SUDT balance of.", type: 'string', default: ''}
 	})
 	.check(validateArgs)
 	.help('h')
@@ -184,6 +184,17 @@ function displayIssueResult(networkType: string, txId: string)
 	}
 }
 
+function displaySudtSummary(networkType: string, issuerAddress: string, tokenId: string, balanceAddress: string, balance: string)
+{
+	// Print SUDT balance info.
+	process.stdout.write('\n');
+	process.stdout.write(`Network Type:\t ${networkType}\n`);
+	process.stdout.write(`SUDT Token ID:\t ${tokenId}\n`);
+	process.stdout.write(`Issuer Address:\t ${issuerAddress}\n`);
+	process.stdout.write(`Balance Address: ${balanceAddress}\n`);
+	process.stdout.write(`Balance:\t ${balance}\n`);
+}
+
 async function deployFile(networkType: string, privateKey: string, fee_: BigInt, filename: string)
 {
 	// Init PW-Core with the specified network type.
@@ -212,6 +223,31 @@ async function deployFile(networkType: string, privateKey: string, fee_: BigInt,
 	const txId = await pw.pwCore.sendTransaction(transaction);
 
 	return new OutPoint(txId, '0x0');
+}
+
+async function getSudtBalance(networkType: string, privateKey: string, addressString: string)
+{
+	// Init PW-Core with the specified network type.
+	const pw = await initPwCore(networkType as NetworkTypeString, privateKey);
+
+	// Determine the address prefix for the current network type.
+	const prefix = (getDefaultPrefix() === PwAddressPrefix.ckb) ? AddressPrefix.Mainnet : AddressPrefix.Testnet;
+
+	// Determine the issuer address.
+	const issuerAddress = new Address(privateKeyToAddress(privateKey, {prefix}), AddressType.ckb);
+	const issuerLockHash = issuerAddress.toLockScript().toHash();
+
+	// Determine the balance address.
+	const balanceAddress = (addressString === '') ? issuerAddress : new Address(addressString, AddressType.ckb);
+
+	// Determine SUDT token ID.
+	const sudt = new SUDT(issuerLockHash);
+	
+	// Get the SUDT balance.
+	const balance = await pw.collector.getSUDTBalance(sudt, balanceAddress);
+	
+	// Display the summary information on the console.
+	displaySudtSummary(networkType, issuerAddress.toCKBAddress(), sudt.toTypeScript().toHash(), balanceAddress.toCKBAddress(), balance.toString(0));
 }
 
 async function initCellDeps(networkType: string, privateKey: string)
@@ -257,7 +293,7 @@ async function initCellDeps(networkType: string, privateKey: string)
 	}
 }
 
-async function issueSudt(networkType: string, privateKey: string, address_: string, amount_: BigInt, fee_: BigInt)
+async function issueSudt(networkType: string, privateKey: string, addressString: string, amount_: BigInt, fee_: BigInt)
 {
 	// Init PW-Core with the specified network type.
 	const pw = await initPwCore(networkType as NetworkTypeString, privateKey);
@@ -270,7 +306,7 @@ async function issueSudt(networkType: string, privateKey: string, address_: stri
 	const issuerLockHash = issuerAddress.toLockScript().toHash();
 
 	// Determine the destination address.
-	const destinationAddress = (address_ === '') ? issuerAddress : new Address(address_, AddressType.ckb);
+	const destinationAddress = (addressString === '') ? issuerAddress : new Address(addressString, AddressType.ckb);
 
 	// Determine SUDT token ID.
 	const sudt = new SUDT(issuerLockHash);
@@ -364,7 +400,7 @@ async function main()
 			await issueSudt(args.networkType, args.privateKey, args.address, BigInt(args.amount), BigInt(args.fee));
 			break;
 		case 'balance':
-			throw new Error('Not yet implemented.');
+			await getSudtBalance(args.networkType, args.privateKey, args.address);
 			break;
 		default:
 			throw new Error('Invalid command specified.');
