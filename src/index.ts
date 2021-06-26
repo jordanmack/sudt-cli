@@ -161,12 +161,14 @@ async function main()
 	const args = initArgs();
 	// console.log(args);
 
+	// Execute the command.
 	switch(args._[0]) // args._[0] is the command specified.
 	{
 		case 'issue':
 			issueSudt(args.networkType, args.privateKey, args.address, BigInt(args.amount), BigInt(args.fee));
 			break;
 		case 'balance':
+			throw new Error('Not yet implemented.');
 			break;
 		default:
 			throw new Error('Invalid command specified.');
