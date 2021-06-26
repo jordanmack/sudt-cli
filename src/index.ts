@@ -168,19 +168,19 @@ function displayIssueInfo(networkType: string, issuerAddress: string, tokenId: s
 	process.stdout.write(`Dest Address:\t ${destinationAddress}\n`);
 	process.stdout.write(`Amount:\t\t ${amount}\n`);
 	process.stdout.write(`Fee:\t\t ${fee}\n`);
-	process.stdout.write('\n');
 }
 
 function displayIssueResult(networkType: string, txId: string)
 {
 	// Print the resulting TX ID.
-	process.stdout.write(`Transaction:\t${txId}\n`);
+	process.stdout.write('\n');
+	process.stdout.write(`Transaction:\t ${txId}\n`);
 
 	// Print explorer URL only if not on the devnet.
 	if(networkType !== 'devnet')
 	{
-		process.stdout.write(`Explorer URL:\t${Config[networkType as ChainTypeString].ckbExplorerUrl}transaction/${txId}\n`);
-		process.stdout.write('Note: It may take 30-60 seconds before the transaction is available on the Explorer.\n');
+		process.stdout.write(`Explorer URL:\t ${Config[networkType as ChainTypeString].ckbExplorerUrl}transaction/${txId}\n`);
+		process.stdout.write('Note:\t\t It may take 30-60 seconds before the transaction is available on the Explorer.\n');
 	}
 }
 
@@ -351,6 +351,7 @@ async function main()
 	const args = initArgs();
 
 	// Wait for indexer to be ready.
+	process.stdout.write('\n');
 	process.stdout.write('Waiting for CKB Indexer to sync.');
 	await indexerReady(Config.devnet.ckbRpcUrl, Config.devnet.ckbIndexerUrl, (_indexerTip, _rpcTip)=>{process.stdout.write('.');});
 	process.stdout.write(' Ready.\n');
