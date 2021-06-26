@@ -45,3 +45,9 @@ chmod 755 ./sudt-cli
 ```sh
 ./sudt-cli --help
 ```
+
+If your platform does not support shell scripts, use this alternate command syntax:
+
+```sh
+npx ts-node --files src/index.ts --help
+```
