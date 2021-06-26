@@ -157,11 +157,11 @@ function validateArgs(args: any)
 
 async function main()
 {
+	// Initialize the command line arguments.
 	const args = initArgs();
-	const command = args._[0];
 	// console.log(args);
 
-	switch(command)
+	switch(args._[0]) // args._[0] is the command specified.
 	{
 		case 'issue':
 			issueSudt(args.networkType, args.privateKey, args.address, BigInt(args.amount), BigInt(args.fee));
