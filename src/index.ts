@@ -62,6 +62,7 @@ function initArgs()
 
 function displayIssueSummary(networkType: string, issuerAddress: string, tokenId: string, destinationAddress: string, amount: BigInt, fee: BigInt, txId: string)
 {
+	// Print issue summary.
 	process.stdout.write('\n');
 	process.stdout.write(`Network Type:\t ${networkType}\n`);
 	process.stdout.write(`SUDT Token ID:\t ${tokenId}\n`);
@@ -72,10 +73,11 @@ function displayIssueSummary(networkType: string, issuerAddress: string, tokenId
 	process.stdout.write('\n');
 	process.stdout.write(`Transaction:\t${txId}\n`);
 
+	// Print explorer URL only if not on the devnet.
 	if(networkType !== 'devnet')
 	{
 		process.stdout.write(`Explorer URL:\t${Config[networkType as ChainTypeString].ckbExplorerUrl}transaction/${txId}\n`);
-		process.stdout.write('Note: The Explorer may take 30-60 seconds before the transaction is available.\n');
+		process.stdout.write('Note: It may take 30-60 seconds before the transaction is available on the Explorer.\n');
 		process.stdout.write('\n');
 	}
 }
