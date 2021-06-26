@@ -56,7 +56,8 @@ export default class SudtBuilder extends Builder
 		const changeCapacity = inputCapacity.sub(neededAmount.sub(new Amount("61", AmountUnit.ckb)));
 
 		// Add the change cell.
-		const changeCell = new Cell(changeCapacity, lockScript);
+		const changeLockScript = issuerAddress.toLockScript()
+		const changeCell = new Cell(changeCapacity, changeLockScript);
 		outputCells.push(changeCell);
 
 		// Add the required cell deps.
