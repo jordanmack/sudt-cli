@@ -6,7 +6,15 @@ This is a command line tool to create SUDT tokens on the Nervos Mainnet and Test
 
 ### Prerequisites
 
+- Git 
 - Node.js v14.17.1 [[Download]](https://nodejs.org/en/download/)
+
+### Clone the Git Repo
+
+```
+git clone https://github.com/jordanmack/sudt-cli.git
+cd sudt-cli
+```
 
 ### Install Dependencies
 
@@ -20,8 +28,8 @@ npm i
 npm run build
 ```
 
-### Usage
+## Usage
 
 ```
-
+./sudt-cli
 ```
