@@ -188,7 +188,6 @@ function displayIssueResult(networkType: string, txId: string)
 	{
 		process.stdout.write(`Explorer URL:\t${Config[networkType as ChainTypeString].ckbExplorerUrl}transaction/${txId}\n`);
 		process.stdout.write('Note: It may take 30-60 seconds before the transaction is available on the Explorer.\n');
-		process.stdout.write('\n');
 	}
 }
 
@@ -376,5 +375,7 @@ async function main()
 		default:
 			throw new Error('Invalid command specified.');
 	}
+
+	process.stdout.write('\n');
 }
 main();
