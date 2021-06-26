@@ -503,7 +503,7 @@ async function main()
 			await getSudtBalance(args.networkType, args.privateKey, args.address);
 			break;
 		default:
-			throw new Error('Invalid command specified.');
+			yargs.showHelp();
 	}
 
 	process.stdout.write('\n');
