@@ -23,8 +23,8 @@ const config =
 	},
 	assets:
 	{
-		pwLockScriptCodeBinary: './assets/pwlock',
-		sudtScriptCodeBinary: './assets/sudt',
+		pwLockScriptCodeBinary: './assets/binaries/pwlock',
+		sudtScriptCodeBinary: './assets/binaries/sudt',
 	}
 };
 
