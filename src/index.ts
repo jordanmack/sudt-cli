@@ -2,7 +2,7 @@ import {AddressPrefix, privateKeyToAddress} from '@nervosnetwork/ckb-sdk-utils';
 import PWCore, {Address, AddressType, Amount, AmountUnit, AddressPrefix as PwAddressPrefix, CellDep, ChainID, Config as PwConfig, DepType, getDefaultPrefix, HashType, OutPoint, RawProvider, Script, SUDT} from '@lay2/pw-core';
 import * as _ from 'lodash';
 import fs from 'fs';
-const yargs = require('yargs');
+import yargs from 'yargs';
 
 import Config from './config.js';
 import Utils, {indexerReady, waitForConfirmation} from './Utils';
@@ -484,7 +484,7 @@ function validateArgs(args: any)
 async function main()
 {
 	// Initialize the command line arguments.
-	const args = initArgs();
+	const args: any = initArgs();
 
 	// Wait for indexer to be ready.
 	process.stdout.write('\n');
