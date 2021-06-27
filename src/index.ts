@@ -363,6 +363,7 @@ async function initCellDeps(networkType: string, privateKey: string)
 
 		// Create a devnet config file with the new out points.
 		await writeDevnetConfig(pwLockOutPoint, sudtOutPoint);
+		process.stdout.write('\n');
 	}
 }
 
@@ -438,10 +439,24 @@ function networkTypeToChainId(networkType: string)
  */
 async function waitForIndexer()
 {
-	// Wait for indexer to be ready.
-	process.stdout.write('Waiting for CKB Indexer to sync.');
-	await indexerReady(Config.devnet.ckbRpcUrl, Config.devnet.ckbIndexerUrl, (_indexerTip, _rpcTip)=>{process.stdout.write('.');}, {blockDifference: 1});
-	process.stdout.write(' Ready.\n\n');
+	// Begin checking the indexer, but do not display a message for the first n ticks (quietTicks).
+	const quietTicks = 10;
+	let tickCount = 0;
+	const statusTick = (_indexerTip: BigInt, _rpcTip: BigInt)=>
+	{
+		if(tickCount === quietTicks)
+			process.stdout.write('Waiting for CKB Indexer to sync.');
+		else if(tickCount > quietTicks)
+			process.stdout.write('.');
+		tickCount++;
+	};
+
+	// Wait for indexer to be ready. Block difference is set to 1, which is the normal amount it can fall out of sync temporarily while still being up to date.
+	await indexerReady(Config.devnet.ckbRpcUrl, Config.devnet.ckbIndexerUrl, statusTick, {blockDifference: 1});
+
+	// Only show the "ready" message if the "waiting" message has been printed. 
+	if(tickCount >= quietTicks)
+		process.stdout.write(' Ready.\n\n');
 }
 
 /**
