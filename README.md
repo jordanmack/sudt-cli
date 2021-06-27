@@ -6,9 +6,20 @@
 ![Requires.io](https://img.shields.io/requires/github/jordanmack/sudt-cli)
 ![GitHub Repo stars](https://img.shields.io/github/stars/jordanmack/sudt-cli?style=social)
 
-This is a command line tool to create SUDT tokens on the Nervos Mainnet and Testnet and on private Devnets.
+Sudt-cli a command line tool to create SUDT tokens on the Nervos Mainnet, Testnet, and on private Devnets.
 
-## Setup
+## Installation
+
+Sudt-cli can be used in multiple different ways.
+
+- As a standalone binary application.
+- As a Node.js application run from the source files.
+
+## Installing a Standalone Binary
+
+You can download a standalone binary from the [sudt-cli release page](https://github.com/jordanmack/sudt-cli/releases).
+
+## Developing and Running from Source
 
 ### Supported OSs
 
@@ -19,7 +30,7 @@ The following operating systems are supported and tested. Other platforms may wo
 ### Prerequisites
 
 - Git [[Download](https://git-scm.com/downloads)]
-- Node.js v14.17.1 [[Download]](https://nodejs.org/en/download/)
+- Node.js v14.17.1+ [[Download]](https://nodejs.org/en/download/)
 
 ### Clone the Git Repo
 
@@ -36,11 +47,11 @@ npm i
 
 ### Update the Configuration File
 
-Open the `src/config.js` file to view the configuration.
+The most common configuration is already included and most users will not need to change it.
 
-The most common configuration is already included and may not need to be changed.
+If you want to use the tool with a devnet that is not on `localhost`, you will need to update the URLs in the configuration.
 
-If you are running a devnet that is not on `localhost`, you will need to update the URLs in the configuration.
+To view and modify the configuration, open the `src/config.js` file.
 
 ### Update Permissions (Linux and MacOS)
 
@@ -48,7 +59,7 @@ If you are running a devnet that is not on `localhost`, you will need to update 
 chmod 755 ./sudt-cli
 ```
 
-## Usage
+### Usage
 
 On Linux and MacOS use the convenience shell script.
 
@@ -60,4 +71,12 @@ If your platform does not support shell scripts (Windows), use this alternate co
 
 ```sh
 npx ts-node --files src/index.ts --help
+```
+
+### Building Standalone Binaries
+
+This will compile and package the application as an [nexe](https://github.com/nexe/nexe) packaged standalone binary for Linux, MacOS, and Windows. The resulting binaries can be found in the `dist` folder.
+
+```sh
+npm run build-all
 ```
