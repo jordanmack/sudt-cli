@@ -10,7 +10,7 @@
     "postinstall": "npm run compile",
     "start": "ts-node --files src/index.ts",
     "clean": "rimraf build && rimraf dist",
-    "compile": "npx tsc",
+    "compile": "tsc",
     "package": "nexe -t v14.15.3 -o dist/sudt-cli -r ./node_modules/ build/index.js",
     "package-linux": "nexe -t linux-x64-14.15.3 -o dist/sudt-cli-$npm_package_version-linux-x64/sudt-cli -r ./node_modules/ build/index.js",
     "package-mac": "nexe -t mac-x64-14.15.3 -o dist/sudt-cli-$npm_package_version-mac-x64/sudt-cli -r ./node_modules/ build/index.js",
@@ -36,7 +36,9 @@
     "ckb-js-toolkit": "^0.10.2",
     "lodash": "^4.17.21",
     "node-fetch": "^2.6.1",
-    "yargs": "^17.0.1"
+    "yargs": "^17.0.1",
+    "ts-node": "^10.0.0",
+    "typescript": "^4.3.4"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.170",
@@ -45,8 +47,6 @@
     "@types/yargs": "^17.0.0",
     "nexe": "^4.0.0-beta.18",
     "nodemon": "^2.0.7",
-    "rimraf": "^3.0.2",
-    "ts-node": "^10.0.0",
-    "typescript": "^4.3.4"
+    "rimraf": "^3.0.2"
   }
 }
