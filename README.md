@@ -106,3 +106,9 @@ This will compile and package the application as an [nexe](https://github.com/ne
 ```sh
 npm run build-all
 ```
+
+You can then run the following command to compress the binaries in preparation for distribution.
+
+```sh
+npm run zip-all
+```
