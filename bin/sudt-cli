@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+# npx ts-node --files src/index.ts "$@"
+
+node build/index.js "$@"

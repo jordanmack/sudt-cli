@@ -495,6 +495,8 @@ function validateArgs(args: any)
  */
 async function main()
 {
+	process.stdout.write('\n');
+
 	// Initialize the command line arguments.
 	const args: any = initArgs();
 
