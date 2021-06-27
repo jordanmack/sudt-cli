@@ -17,7 +17,7 @@ Sudt-cli can be used in multiple different ways.
 
 ## Installing a Standalone Binary
 
-You can download a standalone binary from the [sudt-cli release page](https://github.com/jordanmack/sudt-cli/releases).
+You can download a standalone binary from the [sudt-cli releases page](https://github.com/jordanmack/sudt-cli/releases).
 
 ## Developing and Running from Source
 
