@@ -8,7 +8,11 @@
     "clean": "rimraf build && rimraf dist",
     "compile": "tsc",
     "package": "nexe -t v14.15.3 -o dist/sudt-cli -r ./node_modules/ build/index.js",
+    "package-linux": "nexe -t linux-x64-14.15.3 -o dist/linux-x64/sudt-cli -r ./node_modules/ build/index.js",
+    "package-mac": "nexe -t mac-x64-14.15.3 -o dist/mac-x64/sudt-cli -r ./node_modules/ build/index.js",
+    "package-windows": "nexe -t windows-x64-14.15.3 -o dist/windows-x64/sudt-cli.exe -r ./node_modules/ build/index.js",
     "build": "npm run clean && npm run compile && npm run package",
+    "build-all": "npm run clean && npm run compile && npm run package-linux && npm run package-mac && npm run package-windows",
     "bump": "npm --no-git-tag-version version patch"
   },
   "repository": {
