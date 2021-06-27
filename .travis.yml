@@ -6,4 +6,4 @@ before_script:
   - npm i --force
 
 script:
-  - npm run build
+  - npm run compile
