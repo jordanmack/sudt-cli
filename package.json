@@ -1,6 +1,6 @@
 {
   "name": "sudt-cli",
-  "version": "0.5.7",
+  "version": "0.5.10",
   "description": "sudt-cli is a command line tool to create SUDT tokens on the Nervos Mainnet, Testnet, and on private Devnets.",
   "main": "bin/sudt-cli.js",
   "bin": {
