@@ -12,8 +12,23 @@ Sudt-cli a command line tool to create SUDT tokens on the Nervos Mainnet, Testne
 
 Sudt-cli can be used in multiple different ways.
 
+- As a global application installed with [NPM](https://en.wikipedia.org/wiki/Npm_(software)). (Recommended)
+- As a global application using [NPX](https://www.npmjs.com/package/npx).
 - As a standalone binary application.
 - As a Node.js application run from the source files.
+
+## Installing with NPM
+
+```sh
+npm i -g sudt-cli
+sudt-cli --help
+```
+
+## Installing with NPX
+
+```sh
+npx sudt-cli --help
+```
 
 ## Installing a Standalone Binary
 
@@ -53,10 +68,16 @@ If you want to use the tool with a devnet that is not on `localhost`, you will n
 
 To view and modify the configuration, open the `src/config.js` file.
 
+### Compile the TypeScript to JavaScript
+
+```sh
+npm run compile
+```
+
 ### Update Permissions (Linux and MacOS)
 
 ```sh
-chmod 755 ./sudt-cli
+chmod 755 ./bin/sudt-cli
 ```
 
 ### Usage
@@ -64,7 +85,7 @@ chmod 755 ./sudt-cli
 On Linux and MacOS use the convenience shell script.
 
 ```sh
-./sudt-cli --help
+./bin/sudt-cli --help
 ```
 
 If your platform does not support shell scripts (Windows), use this alternate command syntax.
