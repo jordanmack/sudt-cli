@@ -222,7 +222,7 @@ function displayIssueResult(networkType: string, txId: string)
 	if(networkType !== 'devnet')
 	{
 		process.stdout.write(`Explorer URL:\t ${Config[networkType as ChainTypeString].ckbExplorerUrl}transaction/${txId}\n`);
-		process.stdout.write('Note:\t\t It may take 30-60 seconds before the transaction is available on the Explorer.\n');
+		process.stdout.write('Note:\t\t It may take 1-2 minutes before the transaction is visible on the Explorer.\n');
 	}
 }
 
