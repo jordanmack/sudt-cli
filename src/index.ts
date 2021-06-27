@@ -350,7 +350,7 @@ async function initCellDeps(networkType: string, privateKey: string)
 		const issuerLockScriptJson = issuerAddress.toLockScript().serializeJson();
 
 		// We use a higher fee rate due to the size of the binaries.
-		const fee = 100000n;
+		const fee = BigInt(100000);
 
 		// Deploy PW-Lock script code binaries.
 		const pwLockOutPoint = await deployFile(networkType, privateKey, fee, Config.assets.pwLockScriptCodeBinary);
@@ -450,7 +450,7 @@ function validateArgs(args: any)
 		if(!validateHash(args.privateKey, 256))
 			throw new Error('Private key must be a valid 256-bit private key hash in hex format prefixed with "0x".');
 
-		if(BigInt(args.amount) <= 0n)
+		if(BigInt(args.amount) <= BigInt(0))
 			throw new Error('Amount must be a positive integer that is greater than zero.');
 
 		if(args.address.length !== 0 && (args.address.length < 46 || !(args.address.startsWith('ckb') || args.address.startsWith('ckt'))))
@@ -459,7 +459,7 @@ function validateArgs(args: any)
 		if(BigInt(args.fee) <= 0)
 			throw new Error('Fee must be a positive integer that is greater than zero.');
 
-		if(BigInt(args.fee) > 100_000_000n)
+		if(BigInt(args.fee) > BigInt(100_000_000))
 			throw new Error('The fee specified was greater than 100,000,000 Shannons. This is abnormally high and should be reduced.');
 	}
 
