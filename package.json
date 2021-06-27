@@ -1,6 +1,6 @@
 {
   "name": "sudt-cli",
-  "version": "0.5.6",
+  "version": "0.5.7",
   "description": "sudt-cli is a command line tool to create SUDT tokens on the Nervos Mainnet, Testnet, and on private Devnets.",
   "main": "bin/sudt-cli.js",
   "bin": {
@@ -10,7 +10,7 @@
     "postinstall": "npm run compile",
     "start": "ts-node --files src/index.ts",
     "clean": "rimraf build && rimraf dist",
-    "compile": "tsc",
+    "compile": "npx tsc",
     "package": "nexe -t v14.15.3 -o dist/sudt-cli -r ./node_modules/ build/index.js",
     "package-linux": "nexe -t linux-x64-14.15.3 -o dist/sudt-cli-$npm_package_version-linux-x64/sudt-cli -r ./node_modules/ build/index.js",
     "package-mac": "nexe -t mac-x64-14.15.3 -o dist/sudt-cli-$npm_package_version-mac-x64/sudt-cli -r ./node_modules/ build/index.js",
