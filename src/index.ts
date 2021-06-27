@@ -197,7 +197,6 @@ function initArgs()
 function displayIssueInfo(networkType: string, issuerAddress: string, tokenId: string, destinationAddress: string, amount: BigInt, fee: BigInt)
 {
 	// Print issue info.
-	process.stdout.write('\n');
 	process.stdout.write(`Network Type:\t ${networkType}\n`);
 	process.stdout.write(`SUDT Token ID:\t ${tokenId}\n`);
 	process.stdout.write(`Issuer Address:\t ${issuerAddress}\n`);
@@ -215,7 +214,6 @@ function displayIssueInfo(networkType: string, issuerAddress: string, tokenId: s
 function displayIssueResult(networkType: string, txId: string)
 {
 	// Print the resulting TX ID.
-	process.stdout.write('\n');
 	process.stdout.write(`Transaction:\t ${txId}\n`);
 
 	// Print explorer URL only if not on the devnet.
@@ -238,7 +236,6 @@ function displayIssueResult(networkType: string, txId: string)
 function displaySudtSummary(networkType: string, issuerAddress: string, tokenId: string, balanceAddress: string, balance: string)
 {
 	// Print SUDT balance info.
-	process.stdout.write('\n');
 	process.stdout.write(`Network Type:\t ${networkType}\n`);
 	process.stdout.write(`SUDT Token ID:\t ${tokenId}\n`);
 	process.stdout.write(`Issuer Address:\t ${issuerAddress}\n`);
@@ -411,6 +408,7 @@ async function issueSudt(networkType: string, privateKey: string, addressString:
 	const txId = await pw.pwCore.sendTransaction(transaction);
 
 	// Display the result information on the console.
+	process.stdout.write('\n');
 	displayIssueResult(networkType, txId);
 }
 
@@ -441,10 +439,9 @@ function networkTypeToChainId(networkType: string)
 async function waitForIndexer()
 {
 	// Wait for indexer to be ready.
-	process.stdout.write('\n');
 	process.stdout.write('Waiting for CKB Indexer to sync.');
 	await indexerReady(Config.devnet.ckbRpcUrl, Config.devnet.ckbIndexerUrl, (_indexerTip, _rpcTip)=>{process.stdout.write('.');}, {blockDifference: 1});
-	process.stdout.write(' Ready.\n');
+	process.stdout.write(' Ready.\n\n');
 }
 
 /**
