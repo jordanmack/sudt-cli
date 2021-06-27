@@ -19,12 +19,16 @@ Sudt-cli can be used in multiple different ways.
 
 ## Installing with NPM
 
+This method will use NPM to install `sudt-cli` as a global application that can be run from the command line.
+
 ```sh
 npm i -g sudt-cli
 sudt-cli --help
 ```
 
 ## Installing with NPX
+
+This method will use NPX to run `sudt-cli` from the command line without installing globally.
 
 ```sh
 npx sudt-cli --help
