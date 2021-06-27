@@ -3,9 +3,14 @@
   "version": "0.5.2",
   "description": "This is a command line tool to create SUDT tokens on the Nervos Mainnet and Testnet.",
   "main": "src/index.ts",
+  "type": "module",
   "scripts": {
-    "start": "npx ts-node --files src/index.ts",
-    "build": "npx tsc",
+    "start": "ts-node --files src/index.ts",
+    "clean": "rimraf build",
+    "compile": "tsc",
+    "rollup": "rollup -c",
+    "package": "nexe -t v14.15.3 -o build/sudt-cli build/bundle.js",
+    "build": "npm run clean && npm run compile && npm run rollup && npm run package",
     "bump": "npm --no-git-tag-version version patch"
   },
   "repository": {
@@ -28,11 +33,17 @@
     "yargs": "^17.0.1"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^19.0.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^13.0.0",
     "@types/lodash": "^4.14.170",
     "@types/node": "^15.12.4",
     "@types/node-fetch": "^2.5.10",
     "@types/yargs": "^17.0.0",
+    "nexe": "^4.0.0-beta.18",
     "nodemon": "^2.0.7",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.52.3",
     "ts-node": "^10.0.0",
     "typescript": "^4.3.4"
   }
