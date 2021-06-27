@@ -436,6 +436,18 @@ function networkTypeToChainId(networkType: string)
 }
 
 /**
+ * Waits for the indexer to sync and displays appropriate text.
+ */
+async function waitForIndexer()
+{
+	// Wait for indexer to be ready.
+	process.stdout.write('\n');
+	process.stdout.write('Waiting for CKB Indexer to sync.');
+	await indexerReady(Config.devnet.ckbRpcUrl, Config.devnet.ckbIndexerUrl, (_indexerTip, _rpcTip)=>{process.stdout.write('.');}, {blockDifference: 1});
+	process.stdout.write(' Ready.\n');
+}
+
+/**
  * Perform basic validation on the command line arguments.
  * 
  * @param args - An object that contains all arguments that were parsed by Yargs.
@@ -486,20 +498,16 @@ async function main()
 	// Initialize the command line arguments.
 	const args: any = initArgs();
 
-	// Wait for indexer to be ready.
-	process.stdout.write('\n');
-	process.stdout.write('Waiting for CKB Indexer to sync.');
-	await indexerReady(Config.devnet.ckbRpcUrl, Config.devnet.ckbIndexerUrl, (_indexerTip, _rpcTip)=>{process.stdout.write('.');});
-	process.stdout.write(' Ready.\n');
-
 	// Execute the command.
 	switch(args._[0]) // args._[0] is the command specified.
 	{
 		case 'issue':
+			await waitForIndexer();
 			await initCellDeps(args.networkType, args.privateKey);
 			await issueSudt(args.networkType, args.privateKey, args.address, BigInt(args.amount), BigInt(args.fee));
 			break;
 		case 'balance':
+			await waitForIndexer();
 			await getSudtBalance(args.networkType, args.privateKey, args.address);
 			break;
 		default:
