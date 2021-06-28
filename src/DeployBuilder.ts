@@ -1,23 +1,11 @@
-import PWCore, {Address, Amount, AmountUnit, Builder, Cell, RawTransaction, SUDT, Transaction} from "@lay2/pw-core";
+import PWCore, {Address, Amount, AmountUnit, Builder, Cell, CellDep, DepType, OutPoint, RawTransaction, SUDT, Transaction} from "@lay2/pw-core";
 import BasicCollector from "./BasicCollector";
 
 export default class DeployBuilder extends Builder
 {
-	issuerAddress: Address;
-	destinationAddress: Address;
-	collector: BasicCollector;
-	fee: Amount;
-	data: string;
-
-	constructor(issuerAddress: Address, destinationAddress: Address, collector: BasicCollector, fee: Amount, data: string)
+	constructor(public issuerAddress: Address, public destinationAddress: Address, public collector: BasicCollector, public fee: Amount, public data: string)
 	{
 		super();
-
-		this.issuerAddress = issuerAddress;
-		this.destinationAddress = destinationAddress;
-		this.collector = collector;
-		this.fee = fee;
-		this.data = data;
 	}
 
 	async build(): Promise<Transaction>
@@ -32,7 +20,7 @@ export default class DeployBuilder extends Builder
 		// Arrays for our input cells, output cells, and cell deps, which will be used in the final transaction.
 		const inputCells = [];
 		const outputCells = [];
-		const cellDeps = [];
+		const cellDeps: CellDep[] = [];
 
 		// Create the SUDT output cell.
 		const lockScript = destinationAddress.toLockScript();

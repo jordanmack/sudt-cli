@@ -30,8 +30,8 @@ type NetworkTypeString = 'mainnet'|'testnet'|'devnet';
  * 
  * @returns A PwConfig instance which is used to initialize a devnet.
  */
-async function generateDevnetConfig(): Promise<PwConfig>
-{
+async function generateDevnetConfig(defaultLockTxHash: string, defaultLockIndex: string, defaultLockDepType: DepType): Promise<PwConfig>
+{		
 	const config: PwConfig =
 	{
 		daoType:
@@ -41,7 +41,7 @@ async function generateDevnetConfig(): Promise<PwConfig>
 		},
 		defaultLock:
 		{
-			cellDep: new CellDep(DepType.depGroup, new OutPoint('0xace5ea83c478bb866edf122ff862085789158f5cbff155b7bb5f13058555b708', '0x0')),
+			cellDep: new CellDep(defaultLockDepType, new OutPoint(defaultLockTxHash, defaultLockIndex)),
 			script: new Script('0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8', '0x', HashType.type),
 		},
 		multiSigLock:
@@ -135,7 +135,7 @@ async function writeDevnetConfig(pwLockOutPoint: OutPoint, sudtOutPoint: OutPoin
  * @param networkType - A network type string. (mainnet/testnet/devnet)
  * @param privateKey - A 256-bit private key as a hex string.
  */
-async function initPwCore(networkType: NetworkTypeString, privateKey: string): Promise<PwObject>
+async function initPwCore(networkType: NetworkTypeString, privateKey: string,  defaultLockTxHash: string, defaultLockIndex: string, defaultLockDepType: DepType): Promise<PwObject>
 {
 	const provider = new RawProvider(privateKey);
 	const collector = new BasicCollector(Config[networkType].ckbIndexerUrl);
@@ -143,7 +143,8 @@ async function initPwCore(networkType: NetworkTypeString, privateKey: string): P
 	let pwCore;
 	if(networkType === 'devnet')
 	{
-		pwCore = await new PWCore(Config[networkType].ckbRpcUrl).init(provider, collector, networkTypeToChainId(networkType), await generateDevnetConfig());
+
+		pwCore = await new PWCore(Config[networkType].ckbRpcUrl).init(provider, collector, networkTypeToChainId(networkType), await generateDevnetConfig(defaultLockTxHash, defaultLockIndex, defaultLockDepType));
 	}
 	else
 		pwCore = await new PWCore(Config[networkType].ckbRpcUrl).init(provider, collector, networkTypeToChainId(networkType));
@@ -168,12 +169,18 @@ function initArgs()
 		amount: {alias: 'm', describe: "The number of SUDT tokens to issue.", type: 'string', demand: true},
 		address: {alias: 'a', describe: "The address to send SUDT tokens to. If not specified, defaults to the address associated with the private key.", type: 'string', default: ''},
 		fee: {alias: 'f', describe: "Transaction fee amount in Shannons.", type: 'string', default: '10000'},
+		defaultLockTxHash: {alias: 'dlth', describe: "Default lock cell dependency transaction hash override. A hex string. Provide this only if you have problems running commands without it.", type: 'string', default: '0xace5ea83c478bb866edf122ff862085789158f5cbff155b7bb5f13058555b708'},
+		defaultLockIndex: {alias: 'dli', describe: "Default lock cell dependency transaction outpoint override. A hex string.", type: 'string', default: '0x0'},
+		defaultLockDepType: {alias: 'dldt', describe: "Default lock cell dependency transaction hash override. Allowed values: dep_group or code.", type: 'string', default: 'dep_group'},
 	})
 	.command('balance', 'Check the SUDT token balance on the specified address.',
 	{
 		'private-key': {alias: 'k', describe: "Private key to use for issuance.", type: 'string', demand: true},
 		'network-type': {alias: 't', describe: "The network type: mainnet|testnet|devnet", default: 'testnet', choices: ['mainnet', 'testnet', 'devnet']},
-		address: {alias: 'a', describe: "The address to check the SUDT balance of.", type: 'string', default: ''}
+		address: {alias: 'a', describe: "The address to check the SUDT balance of.", type: 'string', default: ''},
+		defaultLockTxHash: {alias: 'dlth', describe: "Default lock cell dependency transaction hash override. A hex string. Provide this only if you have problems running commands without it.", type: 'string', default: '0xace5ea83c478bb866edf122ff862085789158f5cbff155b7bb5f13058555b708'},
+		defaultLockIndex: {alias: 'dli', describe: "Default lock cell dependency transaction outpoint override. A hex string.", type: 'string', default: '0x0'},
+		defaultLockDepType: {alias: 'dldt', describe: "Default lock cell dependency transaction hash override. Allowed values: dep_group or code.", type: 'string', default: 'dep_group'},
 	})
 	.check(validateArgs)
 	.help('h')
@@ -254,10 +261,10 @@ function displaySudtSummary(networkType: string, issuerAddress: string, tokenId:
  * @param filename - The filename of the local file that will be deployed.
  * @returns An OutPoint of the cell containing the file data.
  */
-async function deployFile(networkType: string, privateKey: string, fee_: BigInt, filename: string)
+async function deployFile(networkType: string, privateKey: string, fee_: BigInt, filename: string, defaultLockTxHash: string, defaultLockIndex: string, defaultLockDepType: DepType)
 {
 	// Init PW-Core with the specified network type.
-	const pw = await initPwCore(networkType as NetworkTypeString, privateKey);
+	const pw = await initPwCore(networkType as NetworkTypeString, privateKey, defaultLockTxHash, defaultLockIndex, defaultLockDepType);
 
 	// Determine the address prefix for the current network type.
 	const prefix = (getDefaultPrefix() === PwAddressPrefix.ckb) ? AddressPrefix.Mainnet : AddressPrefix.Testnet;
@@ -292,10 +299,10 @@ async function deployFile(networkType: string, privateKey: string, fee_: BigInt,
  * @param privateKey - A 256-bit private key as a hex string.
  * @param addressString - The address to get the balance of. If blank, the address will be generated from the private key. 
  */
-async function getSudtBalance(networkType: string, privateKey: string, addressString: string)
+async function getSudtBalance(networkType: string, privateKey: string, addressString: string, defaultLockTxHash: string, defaultLockIndex: string, defaultLockDepType: DepType)
 {
 	// Init PW-Core with the specified network type.
-	const pw = await initPwCore(networkType as NetworkTypeString, privateKey);
+	const pw = await initPwCore(networkType as NetworkTypeString, privateKey, defaultLockTxHash, defaultLockIndex, defaultLockDepType);
 
 	// Determine the address prefix for the current network type.
 	const prefix = (getDefaultPrefix() === PwAddressPrefix.ckb) ? AddressPrefix.Mainnet : AddressPrefix.Testnet;
@@ -323,7 +330,7 @@ async function getSudtBalance(networkType: string, privateKey: string, addressSt
  * @param networkType - A network type string. (mainnet/testnet/devnet)
  * @param privateKey - A 256-bit private key as a hex string.
  */
-async function initCellDeps(networkType: string, privateKey: string)
+async function initCellDeps(networkType: string, privateKey: string, defaultLockTxHash: string, defaultLockIndex: string, defaultLockDepType: DepType)
 {
 	// If this is not a devnet, skip.
 	if(networkType !== 'devnet')
@@ -350,13 +357,13 @@ async function initCellDeps(networkType: string, privateKey: string)
 		const fee = BigInt(100000);
 
 		// Deploy PW-Lock script code binaries.
-		const pwLockOutPoint = await deployFile(networkType, privateKey, fee, Config.assets.pwLockScriptCodeBinary);
+		const pwLockOutPoint = await deployFile(networkType, privateKey, fee, Config.assets.pwLockScriptCodeBinary, defaultLockTxHash, defaultLockIndex, defaultLockDepType);
 		process.stdout.write('Deploying PW-Lock script code binary');
 		await waitForConfirmation(Config.devnet.ckbIndexerUrl, issuerLockScriptJson, pwLockOutPoint.txHash, (_status)=>{process.stdout.write('.');});
 		process.stdout.write(' Done.\n');
 
 		// Deploy SUDT script code binaries.
-		const sudtOutPoint = await deployFile(networkType, privateKey, fee, Config.assets.sudtScriptCodeBinary);
+		const sudtOutPoint = await deployFile(networkType, privateKey, fee, Config.assets.sudtScriptCodeBinary, defaultLockTxHash, defaultLockIndex, defaultLockDepType);
 		process.stdout.write('Deploying SUDT script code binary');
 		await waitForConfirmation(Config.devnet.ckbIndexerUrl, issuerLockScriptJson, sudtOutPoint.txHash, (_status)=>{process.stdout.write('.');});
 		process.stdout.write(' Done.\n');
@@ -376,10 +383,10 @@ async function initCellDeps(networkType: string, privateKey: string)
  * @param amount_ - The number of SUDT tokens to issue.
  * @param fee_ - The fee to be paid in Shannons.
  */
-async function issueSudt(networkType: string, privateKey: string, addressString: string, amount_: BigInt, fee_: BigInt)
+async function issueSudt(networkType: string, privateKey: string, addressString: string, amount_: BigInt, fee_: BigInt, defaultLockTxHash: string, defaultLockIndex: string, defaultLockDepType: DepType)
 {
 	// Init PW-Core with the specified network type.
-	const pw = await initPwCore(networkType as NetworkTypeString, privateKey);
+	const pw = await initPwCore(networkType as NetworkTypeString, privateKey, defaultLockTxHash, defaultLockIndex, defaultLockDepType);
 
 	// Determine the address prefix for the current network type.
 	const prefix = (getDefaultPrefix() === PwAddressPrefix.ckb) ? AddressPrefix.Mainnet : AddressPrefix.Testnet;
@@ -518,13 +525,13 @@ async function main()
 		case 'issue':
 			if(args.networkType === 'devnet')
 				await waitForIndexer(args.networkType);
-			await initCellDeps(args.networkType, args.privateKey);
-			await issueSudt(args.networkType, args.privateKey, args.address, BigInt(args.amount), BigInt(args.fee));
+			await initCellDeps(args.networkType, args.privateKey, args.defaultLockTxHash, args.defaultLockIndex, args.defaultLockDepType);
+			await issueSudt(args.networkType, args.privateKey, args.address, BigInt(args.amount), BigInt(args.fee), args.defaultLockTxHash, args.defaultLockIndex, args.defaultLockDepType);
 			break;
 		case 'balance':
 			if(args.networkType === 'devnet')
 				await waitForIndexer(args.networkType);
-			await getSudtBalance(args.networkType, args.privateKey, args.address);
+			await getSudtBalance(args.networkType, args.privateKey, args.address, args.defaultLockTxHash, args.defaultLockIndex, args.defaultLockDepType);
 			break;
 		default:
 			yargs.showHelp();
