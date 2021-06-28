@@ -114,3 +114,27 @@ You can then run the following command to compress the binaries in preparation f
 ```sh
 npm run zip-all
 ```
+
+## Other tips
+
+If you get an error during token issuance on developer network:
+```
+UnhandledPromiseRejectionWarning: Error: JSONRPCError: server error {"code":-301,"message":"TransactionFailedToResolve: Resolve failed Unknown([OutPoint(0xace5ea83c478bb866edf122ff862085789158f5cbff155b7bb5f13058555b70800000000)])","data":"Resolve(Unknown([OutPoint(0xace5ea83c478bb866edf122ff862085789158f5cbff155b7bb5f13058555b70800000000)]))"}
+```
+
+Please run the `issue` command with additional options corresponding to the where default lock is. Eg. if you have working Lumos config you can copy `SECP256K1_BLAKE160` cell location. You will need `TX_HASH`, `INDEX`, `DEP_TYPE`. This corresponds to the following arguments you need to add to the issue command:
+1. `--defaultLockTxHash XYZ`
+2. `--defaultLockIndex XYZ`
+3. `--defaultLockDepType XYZ`
+
+In the end your command should look like this:
+```
+sudt-cli issue <REDACTED_OTHER_PARAMETERS> --defaultLockHash 0x2db1b175e0436966e5fc8dd5cdf855970869b37a6c556e00e97ccb161c644eb5 --defaultLockIndex 0x0 --defaultLockDepType dep_group
+```
+
+This should fix your problem.
+
+Example full working command:
+```
+yarn start issue -t devnet -k 0x6cd5e7be2f6504aa5ae7c0c04178d8f47b7cfc63b71d95d9e6282f5b090431bf -m 1000 -f 100000 -a ckt1qyqf22qfzaer95xm5d2m5km0f6k288x9warqnhsf4m --dlth 0x2db1b175e0436966e5fc8dd5cdf855970869b37a6c556e00e97ccb161c644eb5
+```
