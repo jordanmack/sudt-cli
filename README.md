@@ -46,6 +46,8 @@ You can download a standalone binary from the [sudt-cli releases page](https://g
 The following operating systems are supported and tested. Other platforms may work but are untested.
 
 - Ubuntu Linux 20.04 LTS
+- MacOS 10.14
+- Windows 10
 
 ### Prerequisites
 
