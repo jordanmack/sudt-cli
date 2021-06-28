@@ -516,12 +516,14 @@ async function main()
 	switch(args._[0]) // args._[0] is the command specified.
 	{
 		case 'issue':
-			await waitForIndexer();
+			if(args.networkType === 'devnet')
+				await waitForIndexer(args.networkType);
 			await initCellDeps(args.networkType, args.privateKey);
 			await issueSudt(args.networkType, args.privateKey, args.address, BigInt(args.amount), BigInt(args.fee));
 			break;
 		case 'balance':
-			await waitForIndexer();
+			if(args.networkType === 'devnet')
+				await waitForIndexer(args.networkType);
 			await getSudtBalance(args.networkType, args.privateKey, args.address);
 			break;
 		default:
