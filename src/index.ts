@@ -437,7 +437,7 @@ function networkTypeToChainId(networkType: string)
 /**
  * Waits for the indexer to sync and displays appropriate text.
  */
-async function waitForIndexer()
+async function waitForIndexer(networkType: string)
 {
 	// Begin checking the indexer, but do not display a message for the first n ticks (quietTicks).
 	const quietTicks = 10;
@@ -452,7 +452,7 @@ async function waitForIndexer()
 	};
 
 	// Wait for indexer to be ready. Block difference is set to 1, which is the normal amount it can fall out of sync temporarily while still being up to date.
-	await indexerReady(Config.devnet.ckbRpcUrl, Config.devnet.ckbIndexerUrl, statusTick, {blockDifference: 1});
+	await indexerReady(Config[networkType as NetworkTypeString].ckbRpcUrl, Config[networkType as NetworkTypeString].ckbIndexerUrl, statusTick, {blockDifference: 1});
 
 	// Only show the "ready" message if the "waiting" message has been printed. 
 	if(tickCount >= quietTicks)
