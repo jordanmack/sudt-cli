@@ -9,7 +9,7 @@
   "scripts": {
     "postinstall": "npm run compile",
     "start": "ts-node --files src/index.ts",
-    "clean": "rimraf build && rimraf dist",
+    "clean": "rimraf build && rimraf dist && rimraf devnet-config.json",
     "compile": "tsc",
     "package": "nexe -t v14.15.3 -o dist/sudt-cli -r ./node_modules/ build/index.js",
     "package-linux": "nexe -t linux-x64-14.15.3 -o dist/sudt-cli-$npm_package_version-linux-x64/sudt-cli -r ./node_modules/ build/index.js",
