@@ -121,7 +121,7 @@ export async function waitForConfirmation(ckbIndexerUrl: string, lockScript: any
 				return reject(Error("Transaction timeout."));
 
 			const query = {script: lockScript, script_type: 'lock'};
-			const transactions = await rpc.get_transactions(query, 'asc', '0x64');
+			const transactions = await rpc.get_transactions(query, 'desc', '0x64');
 
 			if(!!transactions)
 			{
