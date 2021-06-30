@@ -129,12 +129,12 @@ Please run the `issue` command with additional options corresponding to the wher
 
 In the end your command should look like this:
 ```
-sudt-cli issue <REDACTED_OTHER_PARAMETERS> --defaultLockHash 0x2db1b175e0436966e5fc8dd5cdf855970869b37a6c556e00e97ccb161c644eb5 --defaultLockIndex 0x0 --defaultLockDepType dep_group
+sudt-cli issue <REDACTED_OTHER_PARAMETERS> --defaultLockTxHash 0x2db1b175e0436966e5fc8dd5cdf855970869b37a6c556e00e97ccb161c644eb5 --defaultLockIndex 0x0 --defaultLockDepType dep_group
 ```
 
 This should fix your problem.
 
-Example full working command:
+Example full working command (`dlth` is an alias for `defaultLockTxHash`):
 ```
 yarn start issue -t devnet -k 0x6cd5e7be2f6504aa5ae7c0c04178d8f47b7cfc63b71d95d9e6282f5b090431bf -m 1000 -f 100000 -a ckt1qyqf22qfzaer95xm5d2m5km0f6k288x9warqnhsf4m --dlth 0x2db1b175e0436966e5fc8dd5cdf855970869b37a6c556e00e97ccb161c644eb5
 ```

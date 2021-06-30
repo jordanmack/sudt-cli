@@ -1,15 +1,16 @@
 import {AddressPrefix, privateKeyToAddress} from '@nervosnetwork/ckb-sdk-utils';
-import PWCore, {Address, AddressType, Amount, AmountUnit, AddressPrefix as PwAddressPrefix, CellDep, ChainID, Config as PwConfig, DepType, getDefaultPrefix, HashType, OutPoint, RawProvider, Script, SUDT} from '@lay2/pw-core';
+import PWCore, {Address, AddressType, Amount, AddressPrefix as PwAddressPrefix, CellDep, ChainID, Config as PwConfig, DepType, getDefaultPrefix, HashType, OutPoint, RawProvider, Script, SUDT} from '@lay2/pw-core';
 import * as _ from 'lodash';
 import fs from 'fs';
 import yargs from 'yargs';
 
 import Config from './config.js';
 import Utils, {indexerReady, waitForConfirmation} from './Utils';
-import {validateHash} from './Utils';
+import {validateHash,checkCellDepHasScript} from './Utils';
 import BasicCollector from './BasicCollector';
 import DeployBuilder from './DeployBuilder';
 import SudtBuilder from './SudtBuilder';
+import { RPC } from 'ckb-js-toolkit';
 
 interface PwObject
 {
@@ -30,7 +31,7 @@ type NetworkTypeString = 'mainnet'|'testnet'|'devnet';
  * 
  * @returns A PwConfig instance which is used to initialize a devnet.
  */
-async function generateDevnetConfig(defaultLockTxHash: string, defaultLockIndex: string, defaultLockDepType: DepType): Promise<PwConfig>
+async function generateDevnetConfig(defaultLockTxHash: string, defaultLockScript: Script, defaultLockCellDep: CellDep): Promise<PwConfig>
 {		
 	const config: PwConfig =
 	{
@@ -41,8 +42,8 @@ async function generateDevnetConfig(defaultLockTxHash: string, defaultLockIndex:
 		},
 		defaultLock:
 		{
-			cellDep: new CellDep(defaultLockDepType, new OutPoint(defaultLockTxHash, defaultLockIndex)),
-			script: new Script('0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8', '0x', HashType.type),
+			cellDep: defaultLockCellDep,
+			script: defaultLockScript,
 		},
 		multiSigLock:
 		{
@@ -141,10 +142,34 @@ async function initPwCore(networkType: NetworkTypeString, privateKey: string,  d
 	const collector = new BasicCollector(Config[networkType].ckbIndexerUrl);
 
 	let pwCore;
-	if(networkType === 'devnet')
+	if (networkType === 'devnet')
 	{
+		const defaultLockScript = new Script('0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8', '0x', HashType.type);
+		let defaultLockCellDep: CellDep | null = null;
+		const defaultLockCellDepsToCheck = [
+			// typical CKB devnet location
+			new CellDep(DepType.depGroup, new OutPoint('0xace5ea83c478bb866edf122ff862085789158f5cbff155b7bb5f13058555b708', '0x0')),
+			// typical godwoken-kicker devnet location
+			new CellDep(DepType.depGroup, new OutPoint('0x2db1b175e0436966e5fc8dd5cdf855970869b37a6c556e00e97ccb161c644eb5', '0x0')),
+			// custom, user-defined
+			new CellDep(defaultLockDepType, new OutPoint(defaultLockTxHash, defaultLockIndex))
+		];
 
-		pwCore = await new PWCore(Config[networkType].ckbRpcUrl).init(provider, collector, networkTypeToChainId(networkType), await generateDevnetConfig(defaultLockTxHash, defaultLockIndex, defaultLockDepType));
+		const rpc = new RPC(Config[networkType].ckbRpcUrl);
+
+		for (const cellDepToCheck of defaultLockCellDepsToCheck) {
+			if (await checkCellDepHasScript(rpc, cellDepToCheck, defaultLockScript)) {
+				defaultLockCellDep = cellDepToCheck;
+				break;
+			}
+		}
+
+		if (!defaultLockCellDep) {
+			throw new Error(`Couldn't find defaultLock script in its cell dependency. Try changing --defaultLockTxHash.`);
+		}
+
+		const devnetConfig = await generateDevnetConfig(defaultLockTxHash, defaultLockScript, defaultLockCellDep);
+		pwCore = await new PWCore(Config[networkType].ckbRpcUrl).init(provider, collector, networkTypeToChainId(networkType), devnetConfig);
 	}
 	else
 		pwCore = await new PWCore(Config[networkType].ckbRpcUrl).init(provider, collector, networkTypeToChainId(networkType));
@@ -201,7 +226,7 @@ function initArgs()
  * @param amount - The number of SUDT tokens to issue.
  * @param fee - The fee being paid for the transaction.
  */
-function displayIssueInfo(networkType: string, issuerAddress: string, tokenId: string, destinationAddress: string, amount: BigInt, fee: BigInt)
+function displayIssueInfo(networkType: string, issuerAddress: string, tokenId: string, destinationAddress: string, amount: BigInt, fee: BigInt, tokenTypeArgs: string)
 {
 	// Print issue info.
 	process.stdout.write(`Network Type:\t ${networkType}\n`);
@@ -210,6 +235,7 @@ function displayIssueInfo(networkType: string, issuerAddress: string, tokenId: s
 	process.stdout.write(`Dest Address:\t ${destinationAddress}\n`);
 	process.stdout.write(`Amount:\t\t ${amount}\n`);
 	process.stdout.write(`Fee:\t\t ${fee}\n`);
+	process.stdout.write(`SUDT Type Args:\t ${tokenTypeArgs}\n`);
 }
 
 /**
@@ -240,7 +266,7 @@ function displayIssueResult(networkType: string, txId: string)
  * @param balanceAddress - The address that the balance is being determined for.
  * @param balance - The balance of the address.
  */
-function displaySudtSummary(networkType: string, issuerAddress: string, tokenId: string, balanceAddress: string, balance: string)
+function displaySudtSummary(networkType: string, issuerAddress: string, tokenId: string, balanceAddress: string, balance: string, tokenTypeArgs: string)
 {
 	// Print SUDT balance info.
 	process.stdout.write(`Network Type:\t ${networkType}\n`);
@@ -248,6 +274,7 @@ function displaySudtSummary(networkType: string, issuerAddress: string, tokenId:
 	process.stdout.write(`Issuer Address:\t ${issuerAddress}\n`);
 	process.stdout.write(`Balance Address: ${balanceAddress}\n`);
 	process.stdout.write(`Balance:\t ${balance}\n`);
+	process.stdout.write(`SUDT Type Args:\t ${tokenTypeArgs}\n`);
 }
 
 /**
@@ -321,7 +348,8 @@ async function getSudtBalance(networkType: string, privateKey: string, addressSt
 	const balance = await pw.collector.getSUDTBalance(sudt, balanceAddress);
 	
 	// Display the summary information on the console.
-	displaySudtSummary(networkType, issuerAddress.toCKBAddress(), sudt.toTypeScript().toHash(), balanceAddress.toCKBAddress(), balance.toString(0));
+	const sudtTypeScript = sudt.toTypeScript();
+	displaySudtSummary(networkType, issuerAddress.toCKBAddress(), sudtTypeScript.toHash(), balanceAddress.toCKBAddress(), balance.toString(0), sudtTypeScript.args);
 }
 
 /**
@@ -406,8 +434,9 @@ async function issueSudt(networkType: string, privateKey: string, addressString:
 	const fee = new Amount(fee_.toString(), 0);
 
 	// Display the summary information on the console.
-	displayIssueInfo(networkType, issuerAddress.toCKBAddress(), sudt.toTypeScript().toHash(), destinationAddress.toCKBAddress(), amount_, fee_);
-
+	const sudtTypeScript = sudt.toTypeScript();
+	displayIssueInfo(networkType, issuerAddress.toCKBAddress(), sudtTypeScript.toHash(), destinationAddress.toCKBAddress(), amount_, fee_, sudtTypeScript.args);
+	  
 	// Create an SUDT transaction.
 	const builder = new SudtBuilder(sudt, issuerAddress, destinationAddress, amount, pw.collector, fee);
 	const transaction = await builder.build();
