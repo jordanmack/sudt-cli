@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 import fs from 'fs';
 import yargs from 'yargs';
 
+import * as Package from '../package.json';
 import Config from './config.js';
 import Utils, {indexerReady, waitForConfirmation} from './Utils';
 import {validateHash,checkCellDepHasScript} from './Utils';
@@ -214,6 +215,15 @@ function initArgs()
 	.argv;
 
 	return args;
+}
+
+function displayBanner()
+{
+	process.stdout.write(' ____  _   _ ____ _____      ____ _     ___ \n');
+	process.stdout.write('/ ___|| | | |  _ \\_   _|    / ___| |   |_ _|\n');
+	process.stdout.write('\\___ \\| | | | | | || |_____| |   | |    | | \n');
+	process.stdout.write(' ___) | |_| | |_| || |_____| |___| |___ | | \n');
+	process.stdout.write('|____/ \\___/|____/ |_|      \\____|_____|___|\n');
 }
 
 /**
@@ -543,6 +553,7 @@ function validateArgs(args: any)
  */
 async function main()
 {
+	displayBanner();
 	process.stdout.write('\n');
 
 	// Initialize the command line arguments.
