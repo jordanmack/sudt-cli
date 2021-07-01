@@ -1,6 +1,8 @@
+import { Cell, CellDep, DepType, OutPoint, Script } from '@lay2/pw-core';
 import blake2b from 'blake2b';
 import {Reader, RPC} from 'ckb-js-toolkit';
 import fs from 'fs';
+import Molecule from 'molecule-javascript';
 
 export function add0x(hash: string)
 {
@@ -163,4 +165,45 @@ export function validateHash(hash: string, bits: number)
 	return result;
 }
 
-export default {add0x, arrayBufferToHex, ckbHash, hexToArrayBuffer, hexToUint8Array, indexerReady, readFileToHexString, waitForConfirmation, validateHash};
+export async function checkCellDepHasScript(rpc: RPC, cellDep: CellDep, script: Script): Promise<boolean> {
+	if (cellDep.depType !== DepType.depGroup) {
+		throw new Error('Unsupported operation: checkCellDepHasScript method only supports DepType.depGroup');
+	}
+
+	const response = await rpc.get_live_cell({
+		tx_hash: cellDep.outPoint.txHash,
+		index: cellDep.outPoint.index
+	}, true);
+	  
+	const molecule = new Molecule({
+		name: 'Bytes',
+		type: 'fixvec',
+		item: {
+			type: 'byte',
+		},
+	} as any);
+
+	if (!response?.cell?.data) {
+		return false;
+	}
+
+	const depGroupDependencies = molecule.deserialize(response.cell.data.content);
+
+	let scriptFound = false;
+	for (const serializedOutPoint of depGroupDependencies) {
+		const normalizedValue = new OutPoint(
+			serializedOutPoint.slice(0, 66),
+			add0x(parseInt(serializedOutPoint.slice(66, 68), 16).toString(16))
+		);
+
+		const cell = await Cell.loadFromBlockchain(rpc, normalizedValue);
+		if (cell.type?.toHash() === script.codeHash) {
+			scriptFound = true;
+			break;
+		}
+	}
+
+	return scriptFound;
+}
+
+export default {add0x, arrayBufferToHex, ckbHash, hexToArrayBuffer, hexToUint8Array, indexerReady, readFileToHexString, waitForConfirmation, validateHash, checkCellDepHasScript};
