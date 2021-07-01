@@ -222,11 +222,13 @@ function initArgs()
  */
 function displayBanner()
 {
+	process.stdout.write('\n');
 	process.stdout.write(' ____  _   _ ____ _____      ____ _     ___ \n');
 	process.stdout.write('/ ___|| | | |  _ \\_   _|    / ___| |   |_ _|\n');
 	process.stdout.write('\\___ \\| | | | | | || |_____| |   | |    | | \n');
 	process.stdout.write(' ___) | |_| | |_| || |_____| |___| |___ | | \n');
 	process.stdout.write('|____/ \\___/|____/ |_|      \\____|_____|___|\n');
+	process.stdout.write('\n');
 }
 
 /**
@@ -556,9 +558,6 @@ function validateArgs(args: any)
  */
 async function main()
 {
-	displayBanner();
-	process.stdout.write('\n');
-
 	// Initialize the command line arguments.
 	const args: any = initArgs();
 
@@ -566,17 +565,20 @@ async function main()
 	switch(args._[0]) // args._[0] is the command specified.
 	{
 		case 'issue':
+			displayBanner();
 			if(args.networkType === 'devnet')
 				await waitForIndexer(args.networkType);
 			await initCellDeps(args.networkType, args.privateKey, args.defaultLockTxHash, args.defaultLockIndex, args.defaultLockDepType);
 			await issueSudt(args.networkType, args.privateKey, args.address, BigInt(args.amount), BigInt(args.fee), args.defaultLockTxHash, args.defaultLockIndex, args.defaultLockDepType);
 			break;
 		case 'balance':
+			displayBanner();
 			if(args.networkType === 'devnet')
 				await waitForIndexer(args.networkType);
 			await getSudtBalance(args.networkType, args.privateKey, args.address, args.defaultLockTxHash, args.defaultLockIndex, args.defaultLockDepType);
 			break;
 		default:
+			displayBanner();
 			yargs.showHelp();
 	}
 
