@@ -217,6 +217,9 @@ function initArgs()
 	return args;
 }
 
+/**
+ * Display the ASCII art banner.
+ */
 function displayBanner()
 {
 	process.stdout.write(' ____  _   _ ____ _____      ____ _     ___ \n');
