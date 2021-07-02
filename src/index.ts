@@ -4,7 +4,6 @@ import * as _ from 'lodash';
 import fs from 'fs';
 import yargs from 'yargs';
 
-import * as Package from '../package.json';
 import Config from './config.js';
 import Utils, {indexerReady, waitForConfirmation} from './Utils';
 import {validateHash,checkCellDepHasScript} from './Utils';
