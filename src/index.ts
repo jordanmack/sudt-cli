@@ -153,27 +153,31 @@ async function initPwCore(networkType: NetworkTypeString, privateKey: string,  d
 	if (networkType === 'devnet')
 	{
 		const defaultLockScript = new Script('0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8', '0x', HashType.type);
-		let defaultLockCellDep: CellDep | null = null;
-		const defaultLockCellDepsToCheck = [
-			// typical CKB devnet location
+
+		const defaultLockCellDepsToCheck =
+		[
+			// Typical CKB Devnet Out Point
 			new CellDep(DepType.depGroup, new OutPoint('0xace5ea83c478bb866edf122ff862085789158f5cbff155b7bb5f13058555b708', '0x0')),
-			// typical godwoken-kicker devnet location
+			// Typical Godwoken-Kicker Devnet Out Point
 			new CellDep(DepType.depGroup, new OutPoint('0x2db1b175e0436966e5fc8dd5cdf855970869b37a6c556e00e97ccb161c644eb5', '0x0')),
-			// custom, user-defined
+			// Custom User-Defined Out Point
 			new CellDep(defaultLockDepType, new OutPoint(defaultLockTxHash, defaultLockIndex))
 		];
 
 		const rpc = new RPC(Config[networkType].ckbRpcUrl);
-
-		for (const cellDepToCheck of defaultLockCellDepsToCheck) {
-			if (await checkCellDepHasScript(rpc, cellDepToCheck, defaultLockScript)) {
+		let defaultLockCellDep: CellDep | null = null;
+		for(const cellDepToCheck of defaultLockCellDepsToCheck)
+		{
+			if(await checkCellDepHasScript(rpc, cellDepToCheck, defaultLockScript))
+			{
 				defaultLockCellDep = cellDepToCheck;
 				break;
 			}
 		}
 
-		if (!defaultLockCellDep) {
-			throw new Error(`Couldn't find defaultLock script in its cell dependency. Try changing --defaultLockTxHash.`);
+		if(!defaultLockCellDep)
+		{
+			throw new Error(`Unable to find the default lock script in its cell dependency. Try changing --defaultLockTxHash.`);
 		}
 
 		const devnetConfig = await generateDevnetConfig(defaultLockTxHash, defaultLockScript, defaultLockCellDep);
