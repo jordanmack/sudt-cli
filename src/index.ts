@@ -12,6 +12,9 @@ import DeployBuilder from './DeployBuilder';
 import SudtBuilder from './SudtBuilder';
 import { RPC } from 'ckb-js-toolkit';
 
+/**
+ * Used as output from initPwCore().
+ */
 interface PwObject
 {
 	pwCore: PWCore,
@@ -135,6 +138,11 @@ async function writeDevnetConfig(pwLockOutPoint: OutPoint, sudtOutPoint: OutPoin
  * 
  * @param networkType - A network type string. (mainnet/testnet/devnet)
  * @param privateKey - A 256-bit private key as a hex string.
+ * @param defaultLockTxHash - The TX hash of the out point of the default lock script.
+ * @param defaultLockIndex - The index of the out point of the default lock script.
+ * @param defaultLockDepType - The dep type of the default lock script.
+ * 
+ * @returns A PwObject containing instances of PWCore, RawProvider, and BasicCollector.
  */
 async function initPwCore(networkType: NetworkTypeString, privateKey: string,  defaultLockTxHash: string, defaultLockIndex: string, defaultLockDepType: DepType): Promise<PwObject>
 {
@@ -300,6 +308,10 @@ function displaySudtSummary(networkType: string, issuerAddress: string, tokenId:
  * @param privateKey - A 256-bit private key as a hex string.
  * @param fee_ - The fee that should be paid for the transaction.
  * @param filename - The filename of the local file that will be deployed.
+ * @param defaultLockTxHash - The TX hash of the out point of the default lock script.
+ * @param defaultLockIndex - The index of the out point of the default lock script.
+ * @param defaultLockDepType - The dep type of the default lock script.
+ * 
  * @returns An OutPoint of the cell containing the file data.
  */
 async function deployFile(networkType: string, privateKey: string, fee_: BigInt, filename: string, defaultLockTxHash: string, defaultLockIndex: string, defaultLockDepType: DepType)
@@ -338,7 +350,10 @@ async function deployFile(networkType: string, privateKey: string, fee_: BigInt,
  * 
  * @param networkType - A network type string. (mainnet/testnet/devnet)
  * @param privateKey - A 256-bit private key as a hex string.
- * @param addressString - The address to get the balance of. If blank, the address will be generated from the private key. 
+ * @param addressString - The address to get the balance of. If blank, the address will be generated from the private key.
+ * @param defaultLockTxHash - The TX hash of the out point of the default lock script.
+ * @param defaultLockIndex - The index of the out point of the default lock script.
+ * @param defaultLockDepType - The dep type of the default lock script.
  */
 async function getSudtBalance(networkType: string, privateKey: string, addressString: string, defaultLockTxHash: string, defaultLockIndex: string, defaultLockDepType: DepType)
 {
@@ -371,6 +386,9 @@ async function getSudtBalance(networkType: string, privateKey: string, addressSt
  * 
  * @param networkType - A network type string. (mainnet/testnet/devnet)
  * @param privateKey - A 256-bit private key as a hex string.
+ * @param defaultLockTxHash - The TX hash of the out point of the default lock script.
+ * @param defaultLockIndex - The index of the out point of the default lock script.
+ * @param defaultLockDepType - The dep type of the default lock script.
  */
 async function initCellDeps(networkType: string, privateKey: string, defaultLockTxHash: string, defaultLockIndex: string, defaultLockDepType: DepType)
 {
