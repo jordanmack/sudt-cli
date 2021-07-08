@@ -222,7 +222,7 @@ function initArgs()
 	.check(validateArgs)
 	.help('h')
 	.alias('h', 'help')
-	.wrap(Math.max(80, Math.min(120, yargs.terminalWidth())))
+	.wrap(Math.max(80, yargs.terminalWidth()))
 	.argv;
 
 	return args;
