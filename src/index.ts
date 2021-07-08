@@ -202,7 +202,7 @@ function initArgs()
 	.command('issue', 'Issue new SUDT tokens and send to the specified address.',
 	{
 		'private-key': {alias: 'k', describe: "Private key to use for issuance.", type: 'string', demand: true},
-		'network-type': {alias: 't', describe: "The network type: mainnet|testnet|devnet", default: 'testnet', choices: ['mainnet', 'testnet', 'devnet']},
+		'network-type': {alias: 't', describe: "The type network to use.", default: 'testnet', choices: ['mainnet', 'testnet', 'devnet']},
 		amount: {alias: 'm', describe: "The number of SUDT tokens to issue.", type: 'string', demand: true},
 		address: {alias: 'a', describe: "The address to send SUDT tokens to. If not specified, defaults to the address associated with the private key.", type: 'string', default: ''},
 		fee: {alias: 'f', describe: "Transaction fee amount in Shannons.", type: 'string', default: '10000'},
@@ -213,7 +213,7 @@ function initArgs()
 	.command('balance', 'Check the SUDT token balance on the specified address.',
 	{
 		'private-key': {alias: 'k', describe: "Private key to use for issuance.", type: 'string', demand: true},
-		'network-type': {alias: 't', describe: "The network type: mainnet|testnet|devnet", default: 'testnet', choices: ['mainnet', 'testnet', 'devnet']},
+		'network-type': {alias: 't', describe: "The type network to use.", default: 'testnet', choices: ['mainnet', 'testnet', 'devnet']},
 		address: {alias: 'a', describe: "The address to check the SUDT balance of.", type: 'string', default: ''},
 		defaultLockTxHash: {alias: 'dlth', describe: "Default lock cell dependency transaction hash override. A hex string. Provide this only if you have problems running commands without it.", type: 'string', default: '0xace5ea83c478bb866edf122ff862085789158f5cbff155b7bb5f13058555b708'},
 		defaultLockIndex: {alias: 'dli', describe: "Default lock cell dependency transaction outpoint override. A hex string.", type: 'string', default: '0x0'},
