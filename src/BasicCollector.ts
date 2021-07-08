@@ -16,7 +16,8 @@ export default class BasicCollector extends Collector
 	async collectCapacity(address: Address, neededAmount: Amount)
 	{
 		this.cells = [];
-		const indexerQuery = {
+		const indexerQuery =
+		{
 			id: _.random(1_000_000),
 			jsonrpc: "2.0",
 			method: "get_cells",
@@ -29,7 +30,9 @@ export default class BasicCollector extends Collector
 				"0x2710",
 			]
 		};
-		const requestOptions = {
+
+		const requestOptions =
+		{
 			method: "POST",
 			body: JSON.stringify(indexerQuery),
 			cache: "no-store" as RequestCache,
@@ -38,6 +41,7 @@ export default class BasicCollector extends Collector
 			},
 			mode: "cors" as RequestMode,
 		};
+
 		const result = await (await fetch(this.indexerUrl, requestOptions)).json();
 		let amountTotal = Amount.ZERO;
 		const rawCells = result.result.objects;
@@ -58,6 +62,7 @@ export default class BasicCollector extends Collector
 					break;
 			}
 		}
+
 		if (amountTotal.lt(neededAmount))
 			throw new Error(`Could not find enough input capacity. Needed ${neededAmount.toString(AmountUnit.ckb)}, found ${amountTotal.toString(AmountUnit.ckb)}.`);
 
@@ -102,7 +107,8 @@ export default class BasicCollector extends Collector
 
 		let amountSUDTTotal = Amount.ZERO;
 		const rawCells = result.result.objects;
-		for (const rawCell of rawCells) {
+		for(const rawCell of rawCells)
+		{
 			const amount = new Amount(rawCell.output.capacity, AmountUnit.shannon);
 			const amountSUDT = Amount.fromUInt128LE(rawCell.output_data.substring(0, 34));
 			const lockScript = Script.fromRPC(rawCell.output.lock);
@@ -119,7 +125,8 @@ export default class BasicCollector extends Collector
 			if(amountSUDTTotal.gte(neededAmount))
 				break;
 		}
-		if (amountSUDTTotal.lt(neededAmount))
+
+		if(amountSUDTTotal.lt(neededAmount))
 			throw new Error(`Could not find enough input SUDT cells. Needed ${neededAmount.toString(0)}, found ${amountSUDTTotal.toString(0)}.`);
 
 		return this.cells;
@@ -141,6 +148,7 @@ export default class BasicCollector extends Collector
 				"0x2710",
 			]
 		};
+
 		const requestOptions =
 		{
 			method: "POST",
@@ -151,9 +159,11 @@ export default class BasicCollector extends Collector
 			},
 			mode: "cors" as RequestMode,
 		};
+
 		const res = await (await fetch(this.indexerUrl, requestOptions)).json();
 		const rawCells = res.result.objects;
-		for (const rawCell of rawCells) {
+		for(const rawCell of rawCells)
+		{
 			const amount = new Amount(rawCell.output.capacity, AmountUnit.shannon);
 			const lockScript = Script.fromRPC(rawCell.output.lock);
 			const typeScript = Script.fromRPC(rawCell.output.type);
@@ -186,11 +196,12 @@ export default class BasicCollector extends Collector
 		const cells = await this.getCells(address);
 		if (!cells.length)
 			return Amount.ZERO;
+
 		const sudtTypeHash = sudt.toTypeScript().toHash();
 		let balance = new Amount(String(0), 0);
-		for (const cell of cells) {
-			if (!!cell.type && cell.type.toHash() === sudtTypeHash && cell.getHexData().length >= 34) 
-			// if(!!cell.type && cell.data.length >= 34)
+		for(const cell of cells)
+		{
+			if (!!cell.type && cell.type.toHash() === sudtTypeHash && cell.getHexData().length >= 34)
 			{
 				const cellAmountData = cell.getHexData().substring(0, 34);
 				const amount = Amount.fromUInt128LE(cellAmountData);
@@ -204,7 +215,8 @@ export default class BasicCollector extends Collector
 	async collect(address: Address, options: CollectorOptions)
 	{
 		const cells = await this.getCells(address);
-		if(options.withData) {
+		if(options.withData)
+		{
 			return cells.filter((c) => !c.isEmpty() && !c.type);
 		}
 

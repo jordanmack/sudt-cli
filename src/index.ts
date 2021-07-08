@@ -247,12 +247,13 @@ function displayBanner()
  * 
  * @param networkType - A network type string. (mainnet/testnet/devnet)
  * @param issuerAddress - The address of the SUDT issuer.
- * @param tokenId - The SUDT token ID. 
+ * @param tokenId - The SUDT token ID.
+ * @param tokenTypeArgs - The SUDT token type script args.
  * @param destinationAddress - The address that is being sent the issued SUDT tokens.
  * @param amount - The number of SUDT tokens to issue.
  * @param fee - The fee being paid for the transaction.
  */
-function displayIssueInfo(networkType: string, issuerAddress: string, tokenId: string, destinationAddress: string, amount: BigInt, fee: BigInt, tokenTypeArgs: string)
+function displayIssueInfo(networkType: string, tokenId: string, tokenTypeArgs: string, issuerAddress: string, destinationAddress: string, amount: BigInt, fee: BigInt)
 {
 	// Print issue info.
 	process.stdout.write(`Network Type:\t ${networkType}\n`);
@@ -287,12 +288,13 @@ function displayIssueResult(networkType: string, txId: string)
  * Display an SUDT balance summary.
  * 
  * @param networkType - A network type string. (mainnet/testnet/devnet)
- * @param issuerAddress - The address of the SUDT issuer.
  * @param tokenId - The SUDT token ID. 
+ * @param tokenTypeArgs - The SUDT token type script args.
+ * @param issuerAddress - The address of the SUDT issuer.
  * @param balanceAddress - The address that the balance is being determined for.
  * @param balance - The balance of the address.
  */
-function displaySudtSummary(networkType: string, issuerAddress: string, tokenId: string, balanceAddress: string, balance: string, tokenTypeArgs: string)
+function displaySudtSummary(networkType: string, tokenId: string, tokenTypeArgs: string, issuerAddress: string, balanceAddress: string, balance: string)
 {
 	// Print SUDT balance info.
 	process.stdout.write(`Network Type:\t ${networkType}\n`);
@@ -382,7 +384,7 @@ async function getSudtBalance(networkType: string, privateKey: string, addressSt
 	
 	// Display the summary information on the console.
 	const sudtTypeScript = sudt.toTypeScript();
-	displaySudtSummary(networkType, issuerAddress.toCKBAddress(), sudtTypeScript.toHash(), balanceAddress.toCKBAddress(), balance.toString(0), sudtTypeScript.args);
+	displaySudtSummary(networkType, sudtTypeScript.toHash(), sudtTypeScript.args, issuerAddress.toCKBAddress(), balanceAddress.toCKBAddress(), balance.toString(0));
 }
 
 /**
@@ -471,8 +473,8 @@ async function issueSudt(networkType: string, privateKey: string, addressString:
 
 	// Display the summary information on the console.
 	const sudtTypeScript = sudt.toTypeScript();
-	displayIssueInfo(networkType, issuerAddress.toCKBAddress(), sudtTypeScript.toHash(), destinationAddress.toCKBAddress(), amount_, fee_, sudtTypeScript.args);
-	  
+	displayIssueInfo(networkType, sudtTypeScript.toHash(), sudtTypeScript.args, issuerAddress.toCKBAddress(), destinationAddress.toCKBAddress(), amount_, fee_);
+
 	// Create an SUDT transaction.
 	const builder = new SudtBuilder(sudt, issuerAddress, destinationAddress, amount, pw.collector, fee);
 	const transaction = await builder.build();
