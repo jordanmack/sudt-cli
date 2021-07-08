@@ -259,8 +259,8 @@ function displayIssueInfo(networkType: string, issuerAddress: string, tokenId: s
 	process.stdout.write(`SUDT Token ID:\t ${tokenId}\n`);
 	process.stdout.write(`Issuer Address:\t ${issuerAddress}\n`);
 	process.stdout.write(`Dest Address:\t ${destinationAddress}\n`);
-	process.stdout.write(`Amount:\t\t ${amount}\n`);
-	process.stdout.write(`Fee:\t\t ${fee}\n`);
+	process.stdout.write(`Amount:\t\t ${amount} Tokens\n`);
+	process.stdout.write(`Fee:\t\t ${fee} Shannons\n`);
 	process.stdout.write(`SUDT Type Args:\t ${tokenTypeArgs}\n`);
 }
 
@@ -299,7 +299,7 @@ function displaySudtSummary(networkType: string, issuerAddress: string, tokenId:
 	process.stdout.write(`SUDT Token ID:\t ${tokenId}\n`);
 	process.stdout.write(`Issuer Address:\t ${issuerAddress}\n`);
 	process.stdout.write(`Balance Address: ${balanceAddress}\n`);
-	process.stdout.write(`Balance:\t ${balance}\n`);
+	process.stdout.write(`Balance:\t ${balance} Tokens\n`);
 	process.stdout.write(`SUDT Type Args:\t ${tokenTypeArgs}\n`);
 }
 
