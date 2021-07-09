@@ -4,6 +4,7 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/jordanmack/sudt-cli)
 ![Travis (.org)](https://img.shields.io/travis/jordanmack/sudt-cli)
 ![Requires.io](https://img.shields.io/requires/github/jordanmack/sudt-cli)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/jordanmack/sudt-cli?sort=semver)
 ![GitHub Repo stars](https://img.shields.io/github/stars/jordanmack/sudt-cli?style=social)
 
 Sudt-cli a command line tool to create SUDT tokens on the Nervos Mainnet, Testnet, and on private Devnets.
