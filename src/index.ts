@@ -206,18 +206,18 @@ function initArgs()
 		amount: {alias: 'm', describe: "The number of SUDT tokens to issue.", type: 'string', demand: true},
 		address: {alias: 'a', describe: "The address to send SUDT tokens to. If not specified, defaults to the address associated with the private key.", type: 'string', default: ''},
 		fee: {alias: 'f', describe: "Transaction fee amount in Shannons.", type: 'string', default: '10000'},
-		defaultLockTxHash: {alias: 'dlth', describe: "Default lock cell dependency transaction hash override. A hex string. Provide this only if you have problems running commands without it.", type: 'string', default: '0xace5ea83c478bb866edf122ff862085789158f5cbff155b7bb5f13058555b708'},
-		defaultLockIndex: {alias: 'dli', describe: "Default lock cell dependency transaction outpoint override. A hex string.", type: 'string', default: '0x0'},
-		defaultLockDepType: {alias: 'dldt', describe: "Default lock cell dependency transaction hash override. Allowed values: dep_group or code.", type: 'string', default: 'dep_group'},
+		'default-lock-tx-hash': {alias: 'dlth', describe: "Default lock cell dependency transaction hash override. A hex string. Provide this only if you have problems running commands without it.", type: 'string', default: ''},
+		'default-lock-index': {alias: 'dli', describe: "Default lock cell dependency transaction outpoint override. A hex string.", type: 'string', default: '0x0'},
+		'default-lock-dep-type': {alias: 'dldt', describe: "Default lock cell dependency transaction hash override. Allowed values: dep_group or code.", type: 'string', default: 'dep_group'},
 	})
 	.command('balance', 'Check the SUDT token balance on the specified address.',
 	{
 		'private-key': {alias: 'k', describe: "Private key to use for issuance.", type: 'string', demand: true},
 		'network-type': {alias: 't', describe: "The type network to use.", default: 'testnet', choices: ['mainnet', 'testnet', 'devnet']},
 		address: {alias: 'a', describe: "The address to check the SUDT balance of.", type: 'string', default: ''},
-		defaultLockTxHash: {alias: 'dlth', describe: "Default lock cell dependency transaction hash override. A hex string. Provide this only if you have problems running commands without it.", type: 'string', default: '0xace5ea83c478bb866edf122ff862085789158f5cbff155b7bb5f13058555b708'},
-		defaultLockIndex: {alias: 'dli', describe: "Default lock cell dependency transaction outpoint override. A hex string.", type: 'string', default: '0x0'},
-		defaultLockDepType: {alias: 'dldt', describe: "Default lock cell dependency transaction hash override. Allowed values: dep_group or code.", type: 'string', default: 'dep_group'},
+		'default-lock-tx-hash': {alias: 'dlth', describe: "Default lock cell dependency transaction hash override. A hex string. Provide this only if you have problems running commands without it.", type: 'string', default: ''},
+		'default-lock-index': {alias: 'dli', describe: "Default lock cell dependency transaction outpoint override. A hex string.", type: 'string', default: '0x0'},
+		'default-lock-dep-type': {alias: 'dldt', describe: "Default lock cell dependency transaction hash override. Allowed values: dep_group or code.", type: 'string', default: 'dep_group'},
 	})
 	.check(validateArgs)
 	.help('h')
