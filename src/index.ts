@@ -248,21 +248,21 @@ function displayBanner()
  * @param networkType - A network type string. (mainnet/testnet/devnet)
  * @param issuerAddress - The address of the SUDT issuer.
  * @param tokenId - The SUDT token ID.
- * @param tokenTypeArgs - The SUDT token type script args.
+ * @param issuerLockHash - The SUDT token type script args.
  * @param destinationAddress - The address that is being sent the issued SUDT tokens.
  * @param amount - The number of SUDT tokens to issue.
  * @param fee - The fee being paid for the transaction.
  */
-function displayIssueInfo(networkType: string, tokenId: string, tokenTypeArgs: string, issuerAddress: string, destinationAddress: string, amount: BigInt, fee: BigInt)
+function displayIssueInfo(networkType: string, tokenId: string, issuerLockHash: string, issuerAddress: string, destinationAddress: string, amount: BigInt, fee: BigInt)
 {
 	// Print issue info.
-	process.stdout.write(`Network Type:\t ${networkType}\n`);
-	process.stdout.write(`SUDT Token ID:\t ${tokenId}\n`);
-	process.stdout.write(`SUDT Type Args:\t ${tokenTypeArgs}\n`);
-	process.stdout.write(`Issuer Address:\t ${issuerAddress}\n`);
-	process.stdout.write(`Dest Address:\t ${destinationAddress}\n`);
-	process.stdout.write(`Amount:\t\t ${amount} Tokens\n`);
-	process.stdout.write(`Fee:\t\t ${fee} Shannons\n`);
+	process.stdout.write(`Network Type:\t   ${networkType}\n`);
+	process.stdout.write(`SUDT Token ID:\t   ${tokenId}\n`);
+	process.stdout.write(`Issuer Lock Hash:  ${issuerLockHash} (AKA SUDT Type Args)\n`);
+	process.stdout.write(`Issuer Address:\t   ${issuerAddress}\n`);
+	process.stdout.write(`Dest Address:\t   ${destinationAddress}\n`);
+	process.stdout.write(`Amount:\t\t   ${amount} Tokens\n`);
+	process.stdout.write(`Fee:\t\t   ${fee} Shannons\n`);
 }
 
 /**
@@ -274,13 +274,13 @@ function displayIssueInfo(networkType: string, tokenId: string, tokenTypeArgs: s
 function displayIssueResult(networkType: string, txId: string)
 {
 	// Print the resulting TX ID.
-	process.stdout.write(`Transaction:\t ${txId}\n`);
+	process.stdout.write(`Transaction:\t   ${txId}\n`);
 
 	// Print explorer URL only if not on the devnet.
 	if(networkType !== 'devnet')
 	{
-		process.stdout.write(`Explorer URL:\t ${Config[networkType as ChainTypeString].ckbExplorerUrl}transaction/${txId}\n`);
-		process.stdout.write('Note:\t\t It may take 1-2 minutes before the transaction is visible on the Explorer.\n');
+		process.stdout.write(`Explorer URL:\t   ${Config[networkType as ChainTypeString].ckbExplorerUrl}transaction/${txId}\n`);
+		process.stdout.write('Note:\t\t   It may take 1-2 minutes before the transaction is visible on the Explorer.\n');
 	}
 }
 
@@ -289,20 +289,20 @@ function displayIssueResult(networkType: string, txId: string)
  * 
  * @param networkType - A network type string. (mainnet/testnet/devnet)
  * @param tokenId - The SUDT token ID. 
- * @param tokenTypeArgs - The SUDT token type script args.
+ * @param issuerLockHash - The SUDT token type script args.
  * @param issuerAddress - The address of the SUDT issuer.
  * @param balanceAddress - The address that the balance is being determined for.
  * @param balance - The balance of the address.
  */
-function displaySudtSummary(networkType: string, tokenId: string, tokenTypeArgs: string, issuerAddress: string, balanceAddress: string, balance: string)
+function displaySudtSummary(networkType: string, tokenId: string, issuerLockHash: string, issuerAddress: string, balanceAddress: string, balance: string)
 {
 	// Print SUDT balance info.
-	process.stdout.write(`Network Type:\t ${networkType}\n`);
-	process.stdout.write(`SUDT Token ID:\t ${tokenId}\n`);
-	process.stdout.write(`SUDT Type Args:\t ${tokenTypeArgs}\n`);
-	process.stdout.write(`Issuer Address:\t ${issuerAddress}\n`);
-	process.stdout.write(`Balance Address: ${balanceAddress}\n`);
-	process.stdout.write(`Balance:\t ${balance} Tokens\n`);
+	process.stdout.write(`Network Type:\t   ${networkType}\n`);
+	process.stdout.write(`SUDT Token ID:\t   ${tokenId}\n`);
+	process.stdout.write(`Issuer Lock Hash:  ${issuerLockHash} (AKA SUDT Type Args)\n`);
+	process.stdout.write(`Issuer Address:\t   ${issuerAddress}\n`);
+	process.stdout.write(`Balance Address:   ${balanceAddress}\n`);
+	process.stdout.write(`Balance:\t   ${balance} Tokens\n`);
 }
 
 /**
