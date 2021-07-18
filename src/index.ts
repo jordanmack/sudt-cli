@@ -1,3 +1,5 @@
+import mkdirp from 'mkdirp';
+import path from 'path';
 import {AddressPrefix, privateKeyToAddress} from '@nervosnetwork/ckb-sdk-utils';
 import PWCore, {Address, AddressType, Amount, AddressPrefix as PwAddressPrefix, CellDep, ChainID, Config as PwConfig, DepType, getDefaultPrefix, HashType, OutPoint, RawProvider, Script, SUDT} from '@lay2/pw-core';
 import * as _ from 'lodash';
@@ -127,6 +129,7 @@ async function writeDevnetConfig(pwLockOutPoint: OutPoint, sudtOutPoint: OutPoin
 	};
 
 	// Save to the devnet config file.
+	await mkdirp(path.dirname(Config.devnet.configFile));
 	fs.writeFileSync(Config.devnet.configFile, JSON.stringify(devnetConfig, null, 4));
 
 	// Print status.
