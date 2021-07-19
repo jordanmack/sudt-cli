@@ -147,17 +147,31 @@ Balance:           100 Tokens
 SUDT-CLI can be used in multiple different ways.
 
 - As a global application installed with [NPM](https://en.wikipedia.org/wiki/Npm_(software)). (Recommended)
+- As a userspace application installed with [NPM](https://en.wikipedia.org/wiki/Npm_(software)).
 - As a standalone binary application.
 - As a Node.js application run from the source files.
 
 <!-- - As a global application using [NPX](https://www.npmjs.com/package/npx) -->
 
-## Installing with NPM
+## Installing with NPM Globally
 
 This method will use NPM to install `sudt-cli` as a global application that can be run from the command line.
 
+If you are using an `nvm` based installation where global installs run in userspace, use this command.
+
 ```sh
 npm i -g sudt-cli
+```
+
+If you received an error, then you may need elevated priviliges to install globally.
+
+```sh
+sudo npm i -g --unsafe-perm sudt-cli
+```
+
+You can then verify the installation by running this command.
+
+```sh
 sudt-cli --help
 ```
 
@@ -168,6 +182,28 @@ This method will use NPX to run `sudt-cli` from the command line without install
 ```sh
 npx sudt-cli --help
 ``` -->
+
+## Installing with NPM Locally
+
+This method will use NPM to install `sudt-cli` as a local application that can be run from the command line.
+
+> Note: The global installation method is generally recommended over the local installation.
+
+```sh
+npm i sudt-cli
+```
+
+After installation completes, you can test it by running the following command.
+
+```sh
+~/node_modules/.bin/sudt-cli --help
+```
+
+You can also execute the application with `npx`, which has a shorter syntax.
+
+```sh
+npx sudt-cli --help
+```
 
 ## Installing a Standalone Binary
 
