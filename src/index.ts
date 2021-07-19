@@ -1,5 +1,6 @@
 import mkdirp from 'mkdirp';
 import path from 'path';
+import process from 'process';
 import {AddressPrefix, privateKeyToAddress} from '@nervosnetwork/ckb-sdk-utils';
 import PWCore, {Address, AddressType, Amount, AddressPrefix as PwAddressPrefix, CellDep, ChainID, Config as PwConfig, DepType, getDefaultPrefix, HashType, OutPoint, RawProvider, Script, SUDT} from '@lay2/pw-core';
 import * as _ from 'lodash';
@@ -12,6 +13,7 @@ import {validateHash,checkCellDepHasScript} from './Utils';
 import BasicCollector from './BasicCollector';
 import DeployBuilder from './DeployBuilder';
 import SudtBuilder from './SudtBuilder';
+import NullProvider from './NullProvider';
 import { RPC } from 'ckb-js-toolkit';
 
 /**
@@ -20,7 +22,7 @@ import { RPC } from 'ckb-js-toolkit';
 interface PwObject
 {
 	pwCore: PWCore,
-	provider: RawProvider,
+	provider: RawProvider|NullProvider,
 	collector: BasicCollector,
 }
 
@@ -37,7 +39,7 @@ type NetworkTypeString = 'mainnet'|'testnet'|'devnet';
  * @returns A PwConfig instance which is used to initialize a devnet.
  */
 async function generateDevnetConfig(defaultLockTxHash: string, defaultLockScript: Script, defaultLockCellDep: CellDep): Promise<PwConfig>
-{		
+{
 	const config: PwConfig =
 	{
 		// acpLock: // Placeholder
@@ -167,7 +169,7 @@ async function writeDevnetConfig(acpOutPoint: OutPoint, pwLockOutPoint: OutPoint
  */
 async function initPwCore(networkType: NetworkTypeString, privateKey: string,  defaultLockTxHash: string, defaultLockIndex: string, defaultLockDepType: DepType): Promise<PwObject>
 {
-	const provider = new RawProvider(privateKey);
+	const provider = (!!privateKey) ? new RawProvider(privateKey) : new NullProvider();
 	const collector = new BasicCollector(Config[networkType].ckbIndexerUrl);
 
 	let pwCore;
@@ -233,7 +235,8 @@ function initArgs()
 	})
 	.command('balance', 'Check the SUDT token balance on the specified address.',
 	{
-		'private-key': {alias: 'k', describe: "Private key to use for issuance.", type: 'string', demand: true},
+		'private-key': {alias: 'k', describe: "Private key to use for issuance. Either the private key or the issuer lock hash must be specified.", type: 'string', demand: false},
+		'issuer-lock-hash': {alias: 'i', describe: "Hash of the issuer lock for the SUDT token. This can be specified instead of the private key when checking a balance.", type: 'string', demand: false},
 		'network-type': {alias: 't', describe: "The type network to use.", default: 'testnet', choices: ['mainnet', 'testnet', 'devnet']},
 		address: {alias: 'a', describe: "The address to check the SUDT balance of.", type: 'string', default: ''},
 		'default-lock-tx-hash': {alias: 'dlth', describe: "Default lock cell dependency transaction hash override. A hex string. Provide this only if you have problems running commands without it.", type: 'string', default: ''},
@@ -321,7 +324,8 @@ function displaySudtSummary(networkType: string, tokenId: string, issuerLockHash
 	process.stdout.write(`Network Type:\t   ${networkType}\n`);
 	process.stdout.write(`SUDT Token ID:\t   ${tokenId}\n`);
 	process.stdout.write(`Issuer Lock Hash:  ${issuerLockHash} (AKA SUDT Type Args)\n`);
-	process.stdout.write(`Issuer Address:\t   ${issuerAddress}\n`);
+	if(!!issuerAddress)
+		process.stdout.write(`Issuer Address:\t   ${issuerAddress}\n`);
 	process.stdout.write(`Balance Address:   ${balanceAddress}\n`);
 	process.stdout.write(`Balance:\t   ${balance} Tokens\n`);
 }
@@ -377,12 +381,13 @@ async function deployFile(networkType: string, privateKey: string, fee_: BigInt,
  * 
  * @param networkType - A network type string. (mainnet/testnet/devnet)
  * @param privateKey - A 256-bit private key as a hex string.
+ * @param issuerLockHash - A 256-bit hash of the SUDT issuer lock as a hex string.
  * @param addressString - The address to get the balance of. If blank, the address will be generated from the private key.
  * @param defaultLockTxHash - The TX hash of the out point of the default lock script.
  * @param defaultLockIndex - The index of the out point of the default lock script.
  * @param defaultLockDepType - The dep type of the default lock script.
  */
-async function getSudtBalance(networkType: string, privateKey: string, addressString: string, defaultLockTxHash: string, defaultLockIndex: string, defaultLockDepType: DepType)
+async function getSudtBalance(networkType: string, privateKey: string, issuerLockHash: string, addressString: string, defaultLockTxHash: string, defaultLockIndex: string, defaultLockDepType: DepType)
 {
 	// Init PW-Core with the specified network type.
 	const pw = await initPwCore(networkType as NetworkTypeString, privateKey, defaultLockTxHash, defaultLockIndex, defaultLockDepType);
@@ -390,9 +395,15 @@ async function getSudtBalance(networkType: string, privateKey: string, addressSt
 	// Determine the address prefix for the current network type.
 	const prefix = (getDefaultPrefix() === PwAddressPrefix.ckb) ? AddressPrefix.Mainnet : AddressPrefix.Testnet;
 
-	// Determine the issuer address.
-	const issuerAddress = new Address(privateKeyToAddress(privateKey, {prefix}), AddressType.ckb);
-	const issuerLockHash = issuerAddress.toLockScript().toHash();
+	// Determine the issuer address and lock hash.
+	let issuerAddress;
+	if(!!privateKey)
+	{
+		issuerAddress = new Address(privateKeyToAddress(privateKey, {prefix}), AddressType.ckb);
+		issuerLockHash = issuerAddress.toLockScript().toHash();
+	}
+	else
+		issuerAddress = (new Script(PWCore.config.defaultLock.script.codeHash, '0x', PWCore.config.defaultLock.script.hashType)).toAddress();
 
 	// Determine the balance address.
 	const balanceAddress = (addressString === '') ? issuerAddress : new Address(addressString, AddressType.ckb);
@@ -405,7 +416,8 @@ async function getSudtBalance(networkType: string, privateKey: string, addressSt
 	
 	// Display the summary information on the console.
 	const sudtTypeScript = sudt.toTypeScript();
-	displaySudtSummary(networkType, sudtTypeScript.toHash(), sudtTypeScript.args, issuerAddress.toCKBAddress(), balanceAddress.toCKBAddress(), balance.toString(0));
+	const issuerAddressString = (!!privateKey && !!addressString) ? issuerAddress.toCKBAddress() : '';
+	displaySudtSummary(networkType, sudtTypeScript.toHash(), sudtTypeScript.args, issuerAddressString, balanceAddress.toCKBAddress(), balance.toString(0));
 }
 
 /**
@@ -588,6 +600,24 @@ function validateArgs(args: any)
 			throw new Error('The fee specified was greater than 100,000,000 Shannons. This is abnormally high and should be reduced.');
 	}
 
+	if(command === "balance")
+	{
+		if(!args.privateKey && !args.issuerLockHash)
+		{
+			yargs.showHelp();
+			process.exit(0);
+		}
+		
+		if(args.privateKey && !validateHash(args.privateKey, 256))
+			throw new Error('Private key must be a valid 256-bit private key hash in hex format prefixed with "0x".');
+
+		if(args.issuerLockHash && !validateHash(args.issuerLockHash, 256))
+			throw new Error('Issuer lock hash must be a valid 256-bit hash in hex format prefixed with "0x".');
+
+		if(args.issuerLockHash && !args.address)
+			throw new Error('An address to check the SUDT balance of must be provided if no private key is specified.');
+	}
+
 	if(command === "issue" || command === "balance")
 	{
 		if(args.networkType === 'mainnet' && args.address.startsWith('ckt'))
@@ -625,7 +655,7 @@ async function main()
 			displayBanner();
 			if(args.networkType === 'devnet')
 				await waitForIndexer(args.networkType);
-			await getSudtBalance(args.networkType, args.privateKey, args.address, args.defaultLockTxHash, args.defaultLockIndex, args.defaultLockDepType);
+			await getSudtBalance(args.networkType, args.privateKey, args.issuerLockHash, args.address, args.defaultLockTxHash, args.defaultLockIndex, args.defaultLockDepType);
 			break;
 		default:
 			displayBanner();
