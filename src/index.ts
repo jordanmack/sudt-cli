@@ -67,16 +67,17 @@ async function generateDevnetConfig(defaultLockTxHash: string, defaultLockScript
 			cellDep: new CellDep(DepType.code, new OutPoint('0x'+'0'.repeat(64), '0x0')),
 			script: new Script('0x'+'0'.repeat(64), '0x', HashType.data),
 		},
-		sudtType: // Placeholder
+		sudtType:
 		{
-			cellDep: new CellDep(DepType.code, new OutPoint('0x'+'0'.repeat(64), '0x0')),
-			script: new Script('0x'+'0'.repeat(64), '0x', HashType.data),
+			cellDep: new CellDep(DepType.code, new OutPoint('0xbbcbb5355d4604731027358c7baf25e5d9b3d20ddce4308cd835794aa5c409e4', '0x2')),
+			script: new Script('0xe1e354d6d643ad42724d40967e334984534e0367405c5ae42a9d7d63d77df419', '0x', HashType.data),
 		},
 		acpLockList:
 		[
 		],
 	};
 
+	/*
 	// If there is no config file, then return the current one with placeholders. This is needed so deployment can proceed.
 	if(!fs.existsSync(Config.devnet.configFile))
 		return config;
@@ -110,6 +111,7 @@ async function generateDevnetConfig(defaultLockTxHash: string, defaultLockScript
 		cellDep: CellDep.fromRPC(jsonConfig.sudtType.cellDep)!,
 		script: Script.fromRPC(jsonConfig.sudtType.script)!
 	};
+	*/
 
 	return config;
 }
@@ -176,32 +178,7 @@ async function initPwCore(networkType: NetworkTypeString, privateKey: string,  d
 	if (networkType === 'devnet')
 	{
 		const defaultLockScript = new Script('0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8', '0x', HashType.type);
-
-		const defaultLockCellDepsToCheck =
-		[
-			// Typical CKB Devnet Out Point
-			new CellDep(DepType.depGroup, new OutPoint('0xace5ea83c478bb866edf122ff862085789158f5cbff155b7bb5f13058555b708', '0x0')),
-			// Typical Godwoken-Kicker Devnet Out Point
-			new CellDep(DepType.depGroup, new OutPoint('0x2db1b175e0436966e5fc8dd5cdf855970869b37a6c556e00e97ccb161c644eb5', '0x0')),
-			// Custom User-Defined Out Point
-			new CellDep(defaultLockDepType, new OutPoint(defaultLockTxHash, defaultLockIndex))
-		];
-
-		const rpc = new RPC(Config[networkType].ckbRpcUrl);
-		let defaultLockCellDep: CellDep | null = null;
-		for(const cellDepToCheck of defaultLockCellDepsToCheck)
-		{
-			if(await checkCellDepHasScript(rpc, cellDepToCheck, defaultLockScript))
-			{
-				defaultLockCellDep = cellDepToCheck;
-				break;
-			}
-		}
-
-		if(!defaultLockCellDep)
-		{
-			throw new Error(`Unable to find the default lock script in its cell dependency. Try changing --defaultLockTxHash.`);
-		}
+		const defaultLockCellDep = new CellDep(DepType.depGroup, new OutPoint('0xa777fd1964ffa98a7b0b6c09ff71691705d84d5ed1badfb14271a3a870bdd06b', '0x0'));
 
 		const devnetConfig = await generateDevnetConfig(defaultLockTxHash, defaultLockScript, defaultLockCellDep);
 		pwCore = await new PWCore(Config[networkType].ckbRpcUrl).init(provider, collector, networkTypeToChainId(networkType), devnetConfig);
@@ -229,7 +206,7 @@ function initArgs()
 		amount: {alias: 'm', describe: "The number of SUDT tokens to issue.", type: 'string', demand: true},
 		address: {alias: 'a', describe: "The address to send SUDT tokens to. If not specified, defaults to the address associated with the private key.", type: 'string', default: ''},
 		fee: {alias: 'f', describe: "Transaction fee amount in Shannons.", type: 'string', default: '10000'},
-		'default-lock-tx-hash': {alias: 'dlth', describe: "Default lock cell dependency transaction hash override. A hex string. Provide this only if you have problems running commands without it.", type: 'string', default: ''},
+		'default-lock-tx-hash': {alias: 'dlth', describe: "Default lock cell dependency transaction hash override. A hex string. Provide this only if you have problems running commands without it.", type: 'string', default: '0xa777fd1964ffa98a7b0b6c09ff71691705d84d5ed1badfb14271a3a870bdd06b'},
 		'default-lock-index': {alias: 'dli', describe: "Default lock cell dependency transaction outpoint override. A hex string.", type: 'string', default: '0x0'},
 		'default-lock-dep-type': {alias: 'dldt', describe: "Default lock cell dependency transaction hash override. Allowed values: dep_group or code.", type: 'string', default: 'dep_group'},
 	})
@@ -239,7 +216,7 @@ function initArgs()
 		'issuer-lock-hash': {alias: 'i', describe: "Hash of the issuer lock for the SUDT token. This can be specified instead of the private key when checking a balance.", type: 'string', demand: false},
 		'network-type': {alias: 't', describe: "The type network to use.", default: 'testnet', choices: ['mainnet', 'testnet', 'devnet']},
 		address: {alias: 'a', describe: "The address to check the SUDT balance of.", type: 'string', default: ''},
-		'default-lock-tx-hash': {alias: 'dlth', describe: "Default lock cell dependency transaction hash override. A hex string. Provide this only if you have problems running commands without it.", type: 'string', default: ''},
+		'default-lock-tx-hash': {alias: 'dlth', describe: "Default lock cell dependency transaction hash override. A hex string. Provide this only if you have problems running commands without it.", type: 'string', default: '0xa777fd1964ffa98a7b0b6c09ff71691705d84d5ed1badfb14271a3a870bdd06b'},
 		'default-lock-index': {alias: 'dli', describe: "Default lock cell dependency transaction outpoint override. A hex string.", type: 'string', default: '0x0'},
 		'default-lock-dep-type': {alias: 'dldt', describe: "Default lock cell dependency transaction hash override. Allowed values: dep_group or code.", type: 'string', default: 'dep_group'},
 	})
@@ -652,7 +629,7 @@ async function main()
 			displayBanner();
 			if(args.networkType === 'devnet')
 				await waitForIndexer(args.networkType);
-			await initCellDeps(args.networkType, args.privateKey, args.defaultLockTxHash, args.defaultLockIndex, args.defaultLockDepType);
+			// await initCellDeps(args.networkType, args.privateKey, args.defaultLockTxHash, args.defaultLockIndex, args.defaultLockDepType);
 			await issueSudt(args.networkType, args.privateKey, args.address, BigInt(args.amount), BigInt(args.fee), args.defaultLockTxHash, args.defaultLockIndex, args.defaultLockDepType);
 			break;
 		case 'balance':
