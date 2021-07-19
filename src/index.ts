@@ -40,6 +40,11 @@ async function generateDevnetConfig(defaultLockTxHash: string, defaultLockScript
 {		
 	const config: PwConfig =
 	{
+		// acpLock: // Placeholder
+		// {
+		// 	cellDep: new CellDep(DepType.code, new OutPoint('0x'+'0'.repeat(64), '0x0')),
+		// 	script: new Script('0x'+'0'.repeat(64), '0x', HashType.data),
+		// },
 		daoType:
 		{
 			cellDep: new CellDep(DepType.code, new OutPoint('0xa563884b3686078ec7e7677a5f86449b15cf2693f3c1241766c6996f206cc541', '0x2')),
@@ -79,19 +84,25 @@ async function generateDevnetConfig(defaultLockTxHash: string, defaultLockScript
 	const jsonConfig = JSON.parse(rawConfig);
 
 	// Fix keys.
+	jsonConfig.acpLock.cellDep.out_point.tx_hash = jsonConfig.acpLock.cellDep.out_point.txHash;
+	delete jsonConfig.acpLock.cellDep.out_point.txHash;
 	jsonConfig.pwLock.cellDep.out_point.tx_hash = jsonConfig.pwLock.cellDep.out_point.txHash;
 	delete jsonConfig.pwLock.cellDep.out_point.txHash;
 	jsonConfig.sudtType.cellDep.out_point.tx_hash = jsonConfig.sudtType.cellDep.out_point.txHash;
 	delete jsonConfig.sudtType.cellDep.out_point.txHash;
 
-	// Update pwLock config.
+	// Update configs.
+	// config.acpLock =
+	// {
+	// 	cellDep: CellDep.fromRPC(jsonConfig.acpLock.cellDep)!,
+	// 	script: Script.fromRPC(jsonConfig.acpLock.script)!
+	// };
+	config.acpLockList.push(jsonConfig.acpLock.script);
 	config.pwLock =
 	{
 		cellDep: CellDep.fromRPC(jsonConfig.pwLock.cellDep)!,
 		script: Script.fromRPC(jsonConfig.pwLock.script)!
 	};
-
-	// Update sudtType config.
 	config.sudtType =
 	{
 		cellDep: CellDep.fromRPC(jsonConfig.sudtType.cellDep)!,
