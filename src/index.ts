@@ -104,18 +104,25 @@ async function generateDevnetConfig(defaultLockTxHash: string, defaultLockScript
 /**
  * Writes the devnet configuration file that contains the out points of deployed assets.
  * 
+ * @param acpLockOutPoint - The out point for the ACP script code binary.
  * @param pwLockOutPoint - The out point for the PW-Lock script code binary.
  * @param sudtOutPoint - The out point for the SUDT script code binary.
  */
-async function writeDevnetConfig(pwLockOutPoint: OutPoint, sudtOutPoint: OutPoint): Promise<void>
+async function writeDevnetConfig(acpOutPoint: OutPoint, pwLockOutPoint: OutPoint, sudtOutPoint: OutPoint): Promise<void>
 {
 	// Generate file hashes.
+	const acpHash = Utils.ckbHash(Utils.readFileToHexString(Config.assets.acpScriptCodeBinary));	
 	const pwLockHash = Utils.ckbHash(Utils.readFileToHexString(Config.assets.pwLockScriptCodeBinary));	
 	const sudtHash = Utils.ckbHash(Utils.readFileToHexString(Config.assets.sudtScriptCodeBinary));	
 
 	// Generate the config that we will save.
 	const devnetConfig =
 	{
+		acpLock:
+		{
+			cellDep: (new CellDep(DepType.code, acpOutPoint)).serializeJson(),
+			script: (new Script(acpHash, '0x', HashType.data)).serializeJson(),
+		},
 		pwLock:
 		{
 			cellDep: (new CellDep(DepType.code, pwLockOutPoint)).serializeJson(),
@@ -425,6 +432,12 @@ async function initCellDeps(networkType: string, privateKey: string, defaultLock
 		// We use a higher fee rate due to the size of the binaries.
 		const fee = BigInt(100000);
 
+		// Deploy ACP script code binaries.
+		const acpOutPoint = await deployFile(networkType, privateKey, fee, Config.assets.acpScriptCodeBinary, defaultLockTxHash, defaultLockIndex, defaultLockDepType);
+		process.stdout.write('Deploying ACP script code binary');
+		await waitForConfirmation(Config.devnet.ckbIndexerUrl, issuerLockScriptJson, acpOutPoint.txHash, (_status)=>{process.stdout.write('.');});
+		process.stdout.write(' Done.\n');
+
 		// Deploy PW-Lock script code binaries.
 		const pwLockOutPoint = await deployFile(networkType, privateKey, fee, Config.assets.pwLockScriptCodeBinary, defaultLockTxHash, defaultLockIndex, defaultLockDepType);
 		process.stdout.write('Deploying PW-Lock script code binary');
@@ -438,7 +451,7 @@ async function initCellDeps(networkType: string, privateKey: string, defaultLock
 		process.stdout.write(' Done.\n');
 
 		// Create a devnet config file with the new out points.
-		await writeDevnetConfig(pwLockOutPoint, sudtOutPoint);
+		await writeDevnetConfig(acpOutPoint, pwLockOutPoint, sudtOutPoint);
 		process.stdout.write('\n');
 	}
 }

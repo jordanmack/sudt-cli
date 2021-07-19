@@ -26,6 +26,7 @@ const config =
 	},
 	assets:
 	{
+		acpScriptCodeBinary: __dirname+'/../assets/binaries/acp',
 		pwLockScriptCodeBinary: __dirname+'/../assets/binaries/pwlock',
 		sudtScriptCodeBinary: __dirname+'/../assets/binaries/sudt',
 	}
