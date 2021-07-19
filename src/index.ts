@@ -69,8 +69,8 @@ async function generateDevnetConfig(defaultLockTxHash: string, defaultLockScript
 		},
 		sudtType:
 		{
-			cellDep: new CellDep(DepType.code, new OutPoint('0xbbcbb5355d4604731027358c7baf25e5d9b3d20ddce4308cd835794aa5c409e4', '0x2')),
-			script: new Script('0xe1e354d6d643ad42724d40967e334984534e0367405c5ae42a9d7d63d77df419', '0x', HashType.data),
+			cellDep: new CellDep(DepType.code, new OutPoint('0x473a05da909427e2b77d3c4226d29a15539b12d9ddf7d4fda4de8a76df18555c', '0x0')),
+			script: new Script('0x48dbf59b4c7ee1547238021b4869bceedf4eea6b43772e5d66ef8865b6ae7212', '0x', HashType.data),
 		},
 		acpLockList:
 		[
