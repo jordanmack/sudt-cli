@@ -345,8 +345,12 @@ function displaySudtSummary(networkType: string, tokenId: string, issuerLockHash
  * 
  * @returns An OutPoint of the cell containing the file data.
  */
-async function deployFile(networkType: string, privateKey: string, fee_: BigInt, filename: string, defaultLockTxHash: string, defaultLockIndex: string, defaultLockDepType: DepType)
+async function deployFileDevnet(networkType: string, privateKey: string, fee_: BigInt, filename: string, defaultLockTxHash: string, defaultLockIndex: string, defaultLockDepType: DepType)
 {
+	// If this is not a devnet, throw an error. This is only intended for use on a devnet.
+	if(networkType !== 'devnet')
+		throw new Error('The function deployFileDevnet() can only be used on a devnet.');
+
 	// Init PW-Core with the specified network type.
 	const pw = await initPwCore(networkType as NetworkTypeString, privateKey, defaultLockTxHash, defaultLockIndex, defaultLockDepType);
 
@@ -456,19 +460,19 @@ async function initCellDeps(networkType: string, privateKey: string, defaultLock
 		const fee = BigInt(100000);
 
 		// Deploy ACP script code binaries.
-		const acpOutPoint = await deployFile(networkType, privateKey, fee, Config.assets.acpScriptCodeBinary, defaultLockTxHash, defaultLockIndex, defaultLockDepType);
+		const acpOutPoint = await deployFileDevnet(networkType, privateKey, fee, Config.assets.acpScriptCodeBinary, defaultLockTxHash, defaultLockIndex, defaultLockDepType);
 		process.stdout.write('Deploying ACP script code binary');
 		await waitForConfirmation(Config.devnet.ckbIndexerUrl, issuerLockScriptJson, acpOutPoint.txHash, (_status)=>{process.stdout.write('.');});
 		process.stdout.write(' Done.\n');
 
 		// Deploy PW-Lock script code binaries.
-		const pwLockOutPoint = await deployFile(networkType, privateKey, fee, Config.assets.pwLockScriptCodeBinary, defaultLockTxHash, defaultLockIndex, defaultLockDepType);
+		const pwLockOutPoint = await deployFileDevnet(networkType, privateKey, fee, Config.assets.pwLockScriptCodeBinary, defaultLockTxHash, defaultLockIndex, defaultLockDepType);
 		process.stdout.write('Deploying PW-Lock script code binary');
 		await waitForConfirmation(Config.devnet.ckbIndexerUrl, issuerLockScriptJson, pwLockOutPoint.txHash, (_status)=>{process.stdout.write('.');});
 		process.stdout.write(' Done.\n');
 
 		// Deploy SUDT script code binaries.
-		const sudtOutPoint = await deployFile(networkType, privateKey, fee, Config.assets.sudtScriptCodeBinary, defaultLockTxHash, defaultLockIndex, defaultLockDepType);
+		const sudtOutPoint = await deployFileDevnet(networkType, privateKey, fee, Config.assets.sudtScriptCodeBinary, defaultLockTxHash, defaultLockIndex, defaultLockDepType);
 		process.stdout.write('Deploying SUDT script code binary');
 		await waitForConfirmation(Config.devnet.ckbIndexerUrl, issuerLockScriptJson, sudtOutPoint.txHash, (_status)=>{process.stdout.write('.');});
 		process.stdout.write(' Done.\n');
