@@ -147,11 +147,9 @@ Balance:           100 Tokens
 SUDT-CLI can be used in multiple different ways.
 
 - As a global application installed with [NPM](https://en.wikipedia.org/wiki/Npm_(software)). (Recommended)
-- As a userspace application installed with [NPM](https://en.wikipedia.org/wiki/Npm_(software)).
+- As a local userspace application installed with [NPM](https://en.wikipedia.org/wiki/Npm_(software)).
 - As a standalone binary application.
 - As a Node.js application run from the source files.
-
-<!-- - As a global application using [NPX](https://www.npmjs.com/package/npx) -->
 
 ## Installing with NPM Globally
 
@@ -174,14 +172,6 @@ You can then verify the installation by running this command.
 ```sh
 sudt-cli --help
 ```
-
-<!-- ## Installing with NPX
-
-This method will use NPX to run `sudt-cli` from the command line without installing globally.
-
-```sh
-npx sudt-cli --help
-``` -->
 
 ## Installing with NPM Locally
 
