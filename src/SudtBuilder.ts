@@ -40,7 +40,8 @@ export default class SudtBuilder extends Builder
 		// Create the SUDT output cell.
 		const typeScript = sudt.toTypeScript();
 		const lockScript = destinationAddress.toLockScript();
-		const sudtCell = new Cell(new Amount("142", AmountUnit.ckb), lockScript, typeScript, undefined, amount.toUInt128LE());
+		const sudtCell = new Cell(new Amount("9999999999", AmountUnit.ckb), lockScript, typeScript, undefined, amount.toUInt128LE());
+		sudtCell.capacity = sudtCell.occupiedCapacity();
 		outputCells.push(sudtCell);
 
 		// Calculate the required capacity. (SUDT cell + change cell minimum (61) + fee)
