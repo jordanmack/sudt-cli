@@ -1,6 +1,6 @@
 {
   "name": "sudt-cli",
-  "version": "0.5.23",
+  "version": "0.5.24",
   "description": "sudt-cli is a command line tool to create SUDT tokens on the Nervos Mainnet, Testnet, and on private Devnets.",
   "main": "bin/sudt-cli.js",
   "bin": {
@@ -35,7 +35,7 @@
   },
   "homepage": "https://github.com/jordanmack/sudt-cli#readme",
   "dependencies": {
-    "@lay2/pw-core": "^0.4.0-alpha.8",
+    "@lay2/pw-core": "0.4.0-alpha.12",
     "@nervosnetwork/ckb-sdk-utils": "^0.43.0",
     "@types/lodash": "^4.14.171",
     "@types/mkdirp": "^1.0.2",
