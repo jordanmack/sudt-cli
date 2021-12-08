@@ -2,7 +2,7 @@ import mkdirp from 'mkdirp';
 import path from 'path';
 import process from 'process';
 import {AddressPrefix, privateKeyToAddress} from '@nervosnetwork/ckb-sdk-utils';
-import PWCore, {Address, AddressType, Amount, AddressPrefix as PwAddressPrefix, CellDep, ChainID, Config as PwConfig, DepType, getDefaultPrefix, HashType, OutPoint, RawProvider, Script, SUDT} from '@lay2/pw-core';
+import PWCore, {Address, AddressType, Amount, AddressPrefix as PwAddressPrefix, CellDep, ChainID, Config as PwConfig, DepType, getDefaultPrefix, HashType, OutPoint, RawProvider, Script, SUDT, AmountUnit} from '@lay2/pw-core';
 import * as _ from 'lodash';
 import fs from 'fs';
 import yargs from 'yargs';
@@ -229,6 +229,7 @@ function initArgs()
 		amount: {alias: 'm', describe: "The number of SUDT tokens to issue.", type: 'string', demand: true},
 		address: {alias: 'a', describe: "The address to send SUDT tokens to. If not specified, defaults to the address associated with the private key.", type: 'string', default: ''},
 		fee: {alias: 'f', describe: "Transaction fee amount in Shannons.", type: 'string', default: '10000'},
+		minimumCapacity: {alias: 'c', describe: 'Minimum CKB capacity for SUDT Cell. Useful for Layer 2 deposits.', type: 'string', default: '0'},
 		'default-lock-tx-hash': {alias: 'dlth', describe: "Default lock cell dependency transaction hash override. A hex string. Provide this only if you have problems running commands without it.", type: 'string', default: ''},
 		'default-lock-index': {alias: 'dli', describe: "Default lock cell dependency transaction outpoint override. A hex string.", type: 'string', default: '0x0'},
 		'default-lock-dep-type': {alias: 'dldt', describe: "Default lock cell dependency transaction hash override. Allowed values: dep_group or code.", type: 'string', default: 'dep_group'},
@@ -492,7 +493,7 @@ async function initCellDeps(networkType: string, privateKey: string, defaultLock
  * @param amount_ - The number of SUDT tokens to issue.
  * @param fee_ - The fee to be paid in Shannons.
  */
-async function issueSudt(networkType: string, privateKey: string, addressString: string, amount_: BigInt, fee_: BigInt, defaultLockTxHash: string, defaultLockIndex: string, defaultLockDepType: DepType)
+async function issueSudt(networkType: string, privateKey: string, addressString: string, amount_: BigInt, fee_: BigInt, defaultLockTxHash: string, defaultLockIndex: string, defaultLockDepType: DepType, minimumSudtCellCapacity_: BigInt)
 {
 	// Init PW-Core with the specified network type.
 	const pw = await initPwCore(networkType as NetworkTypeString, privateKey, defaultLockTxHash, defaultLockIndex, defaultLockDepType);
@@ -513,13 +514,14 @@ async function issueSudt(networkType: string, privateKey: string, addressString:
 	// Determine the amount and fee.
 	const amount = new Amount(amount_.toString(), 0);
 	const fee = new Amount(fee_.toString(), 0);
+	const minimumSudtCellCapacity = new Amount(minimumSudtCellCapacity_.toString(), AmountUnit.ckb);
 
 	// Display the summary information on the console.
 	const sudtTypeScript = sudt.toTypeScript();
 	displayIssueInfo(networkType, sudtTypeScript.toHash(), sudtTypeScript.args, issuerAddress.toCKBAddress(), destinationAddress.toCKBAddress(), amount_, fee_);
 
 	// Create an SUDT transaction.
-	const builder = new SudtBuilder(sudt, issuerAddress, destinationAddress, amount, pw.collector, fee);
+	const builder = new SudtBuilder(sudt, issuerAddress, destinationAddress, amount, pw.collector, fee, minimumSudtCellCapacity);
 	const transaction = await builder.build();
 
 	// Submit transaction to the network.
@@ -653,7 +655,7 @@ async function main()
 			if(args.networkType === 'devnet')
 				await waitForIndexer(args.networkType);
 			await initCellDeps(args.networkType, args.privateKey, args.defaultLockTxHash, args.defaultLockIndex, args.defaultLockDepType);
-			await issueSudt(args.networkType, args.privateKey, args.address, BigInt(args.amount), BigInt(args.fee), args.defaultLockTxHash, args.defaultLockIndex, args.defaultLockDepType);
+			await issueSudt(args.networkType, args.privateKey, args.address, BigInt(args.amount), BigInt(args.fee), args.defaultLockTxHash, args.defaultLockIndex, args.defaultLockDepType, BigInt(args.minimumCapacity));
 			break;
 		case 'balance':
 			displayBanner();

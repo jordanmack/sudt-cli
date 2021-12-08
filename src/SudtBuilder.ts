@@ -10,7 +10,7 @@ export default class SudtBuilder extends Builder
 	collector: BasicCollector;
 	fee: Amount;
 
-	constructor(sudt: SUDT, issuerAddress: Address, destinationAddress: Address, amount: Amount, collector: BasicCollector, fee: Amount)
+	constructor(sudt: SUDT, issuerAddress: Address, destinationAddress: Address, amount: Amount, collector: BasicCollector, fee: Amount, public minimumSudtCellCapacity: Amount)
 	{
 		super();
 
@@ -42,6 +42,11 @@ export default class SudtBuilder extends Builder
 		const lockScript = destinationAddress.toLockScript();
 		const sudtCell = new Cell(new Amount("9999999999", AmountUnit.ckb), lockScript, typeScript, undefined, amount.toUInt128LE());
 		sudtCell.capacity = sudtCell.occupiedCapacity();
+
+		if (sudtCell.capacity.lt(this.minimumSudtCellCapacity)) {
+			sudtCell.capacity = this.minimumSudtCellCapacity;
+		}
+
 		outputCells.push(sudtCell);
 
 		// Calculate the required capacity. (SUDT cell + change cell minimum (61) + fee)

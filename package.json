@@ -35,7 +35,7 @@
   },
   "homepage": "https://github.com/jordanmack/sudt-cli#readme",
   "dependencies": {
-    "@lay2/pw-core": "^0.4.0-alpha.8",
+    "@lay2/pw-core": "0.4.0-alpha.12",
     "@nervosnetwork/ckb-sdk-utils": "^0.43.0",
     "@types/lodash": "^4.14.171",
     "@types/mkdirp": "^1.0.2",
